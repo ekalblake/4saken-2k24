@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -76,4 +76,28 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+
+.text-fs-primary {
+	color: #9d1010 !important;
+}
+
+.bg-fs-primary {
+	background-color: #9d1010 !important;
+}
+
+.bg-fs-secondary {
+	background-color: #340808 !important;
+}
+
+.bgc_cards {
+	background: rgba(17, 17, 23, 0.5) !important;
+	border-color: #ef4242 !important;
+	box-shadow: 0 0 10px #910000 !important;
+}
+
+.bgc-opacity-30 {
+	background: rgba(56, 52, 52, 0.3) !important;
+	justify-content: center;
+	align-items: center;
 }
