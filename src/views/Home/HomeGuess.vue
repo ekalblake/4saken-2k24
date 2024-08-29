@@ -21,7 +21,6 @@
 						</RouterLink>
 					</v-card-text>
 				</v-col>
-				<v-divider vertical class="d-none d-md-flex d-lg-flex" />
 				<v-col cols="12" sm="12" md="7" lg="7">
 					<v-row no-gutters>
 						<v-col md="3" cols="2">

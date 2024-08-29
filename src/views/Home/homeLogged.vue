@@ -108,7 +108,7 @@
 
 <script lang="ts" setup>
 import { computed, onMounted } from "vue";
-import OnlineInfo from "@/components/Cards/OnlineInfo.vue";
+import OnlineInfo from "@/components/Cards/OnlineInformation.vue";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
 import socketInstance from "@/services/socket";
 

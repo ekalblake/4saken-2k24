@@ -1,33 +1,22 @@
+import IQueue from "@/interface/Queue/IQueue";
 import axios from "../axios";
+import { AxiosResponse } from "axios";
 
+import useSocket from "@/composables/useSocket";
+
+const socketInstance = useSocket();
 export class QueuesService {
-	/**
-	 * Queue: Insert Player
-	 * @param playerObject
-	 */
-	public async joinQueue(playerObject: {
-		userid: number | undefined;
-		region: number;
-	}): Promise<any> {
-		try {
-			const response = await axios.post(`/queue/join`, playerObject);
-			return response.data;
-		} catch ({ response }) {
-			return response;
-		}
+	public joinQueue(room: number): void {
+		socketInstance.emit("queue:join-queue", {
+			room,
+		});
 	}
 
-	/**
-	 * QUEUE: DROP PLAYER
-	 * @param player
-	 */
-	public async dropQueue(region: number): Promise<any> {
-		try {
-			const response = await axios.delete(`/queue/drop/${region}`);
-			return response.data;
-		} catch ({ response }) {
-			return response;
-		}
+	public dropQueue(userid: number | undefined, gameType: number): void {
+		socketInstance.emit("queue:drop-queue", {
+			userid,
+			room: gameType,
+		});
 	}
 	/**
 	 * QUEUE: DROP AS ADMIN
@@ -35,9 +24,7 @@ export class QueuesService {
 	 */
 	public async dropQueueAdmin(steamid: number | undefined): Promise<any> {
 		try {
-			const response = await axios.delete(
-				`/queue/drop/admin/${steamid}/`,
-			);
+			const response = await axios.delete(`/queue/drop/admin/${steamid}/`);
 			return response.data;
 		} catch ({ response }) {
 			return response;
@@ -68,13 +55,8 @@ export class QueuesService {
 		return data;
 	}
 
-	public async getQueueStatus() {
-		try {
-			const response = await axios.get(`/queue/get-queue-status`);
-			return response.data;
-		} catch ({ response }) {
-			return response;
-		}
+	public async getQueueStatus(gameType: number) {
+		return await axios.get(`/queue/get-queue-status/${gameType}`);
 	}
 }
 
