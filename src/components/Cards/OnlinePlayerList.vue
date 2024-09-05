@@ -1,72 +1,71 @@
 <template>
 	<div v-if="!onlinePlayers">
-		<v-card class="bgc_cards online_progressbar_center">
+		<v-card class="bgc-opacity-30 online_progressbar_center ma-3">
 			<v-progress-circular indeterminate color="primary" />
 		</v-card>
 	</div>
-	<v-card v-else class="bgc_cards" min-height="650px">
-		<v-text-field
-			color="white"
-			class="pa-5"
-			density="compact"
-			v-model="playerListInput"
-			append-icon="mdi-magnify"
-			:label="t('search_player')"
-			variant="outlined"
-			hide-details
-		></v-text-field>
-		<v-list class="bg-transparent ma-1 overflow-auto">
-			<v-list-item
-				lines="one"
-				v-for="(online, i) of getPlayersFilter.getPlayers()"
-				class="my-2 bgc-opacity-30 rounded-lg"
-				:key="i"
-			>
-				<template v-slot:prepend>
-					<v-avatar tile size="25" :style="'box-shadow: 0px 0px 5px' + online.getColorChat() + ';'">
-						<img height="30" alt="Profile Pic" :src="online.getAvatarFull()" />
-					</v-avatar>
-				</template>
-				<template v-slot:default>
-					<v-card-text
-						:style="{
-							color: online.getColorChat(),
-							textShadow: '0 0 10px ' + online.getGlowColor(),
-							fontWeight: 'bold',
-						}"
-					>
-						{{ online.getPersonaName().substring(0, 19) }}
-					</v-card-text>
-				</template>
-				<template v-slot:append>
-					<v-card-text
-						:style="{
-							color: online.getColorChat(),
-							textShadow: '0 0 10px ' + online.getGlowColor(),
-							fontWeight: 'bold',
-						}"
-					>
-						{{ online.getRating() }}
-					</v-card-text>
-					<v-tooltip location="top">
-						<template v-slot:activator="{ props }">
-							<span v-bind="props">
-								<v-img
-									width="33px"
-									height="25px"
-									:alt="online.getMmrName()"
-									:src="`src/assets/ranked_medals/${online.getMmrImage()}`"
-								/>
-							</span>
-						</template>
-						<small>
-							{{ online.getMmrName() }}
-						</small>
-					</v-tooltip>
-				</template>
-			</v-list-item>
-		</v-list>
-	</v-card>
+	<v-list v-else class="bg-transparent ma-1 overflow-auto" min-height="650px">
+		<v-list-item class="my-2 text-white rounded-lg">
+			<v-text-field
+				color="white"
+				density="compact"
+				v-model="playerListInput"
+				append-icon="mdi-magnify"
+				:label="t('search_player')"
+				variant="outlined"
+				hide-details
+			></v-text-field>
+		</v-list-item>
+		<v-list-item
+			v-for="(online, i) of getPlayersFilter.getPlayers()"
+			lines="one"
+			class="my-2 bgc-opacity-30 rounded-lg"
+			:key="i"
+		>
+			<template v-slot:prepend>
+				<v-avatar tile size="25" :style="'box-shadow: 0px 0px 5px' + online.getColorChat() + ';'">
+					<img height="30" alt="Profile Pic" :src="online.getAvatarFull()" />
+				</v-avatar>
+			</template>
+			<template v-slot:default>
+				<v-card-text
+					:style="{
+						color: online.getColorChat(),
+						textShadow: '0 0 10px ' + online.getGlowColor(),
+						fontWeight: 'bold',
+					}"
+				>
+					{{ online.getPersonaName().substring(0, 19) }}
+				</v-card-text>
+			</template>
+			<template v-slot:append>
+				<v-card-text
+					:style="{
+						color: online.getColorChat(),
+						textShadow: '0 0 10px ' + online.getGlowColor(),
+						fontWeight: 'bold',
+					}"
+				>
+					{{ online.getRating() }}
+				</v-card-text>
+				<v-tooltip location="top">
+					<template v-slot:activator="{ props }">
+						<span v-bind="props">
+							<v-img
+								width="33px"
+								height="25px"
+								:alt="online.getMmrName()"
+								:src="`src/assets/ranked_medals/${online.getMmrImage()}`"
+							/>
+						</span>
+					</template>
+					<small>
+						{{ online.getMmrName() }}
+					</small>
+				</v-tooltip>
+			</template>
+		</v-list-item>
+	</v-list>
 </template>
 
 <script lang="ts" setup>

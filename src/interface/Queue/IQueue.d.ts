@@ -4,4 +4,3 @@ declare interface IQueue extends IPlayer {
 	region: number;
 	joined_date: string | Date;
 }
-export default IQueue;

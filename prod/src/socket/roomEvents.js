@@ -13,7 +13,6 @@ export const roomEvents = (socket, io, userInfo) => {
 		setOnline(userInfo.UserID)
 			.then(() => {
 				socket.join(room);
-				io.emit("user:join-room", userInfo);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -24,21 +23,7 @@ export const roomEvents = (socket, io, userInfo) => {
 			});
 	});
 
-	socket.on("onunmounted:room", (room) => {
-		console.log(room);
+	socket.on("room:leave-room", (room) => {
 		socket.leave(room);
 	});
-
-	/* socket.on("disconnect", () => {
-		io.emit("disconnect:user", userInfo);
-
-		try {
-			pool.query(`UPDATE users_web SET isonline = 0 WHERE WebID = ?`, [userInfo.UserID]);
-
-			console.log(`User ${socket.id} disconnected.`);
-		} catch (err) {
-			console.log(err);
-			console.log("No se pudo desconectar el usuario");
-		}
-	}); */
 };

@@ -1,53 +1,46 @@
-import { HTTP_STATUS } from "../config";
-import { dropQueue, verifyQueue, joinQueue } from "../query/queue.query";
-import { responseError } from "../utils/errors";
-
 import helpers from "../utils/helpers";
+const { v4: uuidv4 } = require("uuid");
+
 /************************************************************************************************************
  * Queue Events
  ***********************************************************************************************************/
 
-const queueArray = [];
+let queueArray = [];
+let readyArray = [];
+let ongoingMatches = [];
 
-const playingList = [];
+const TEAM_SIZE = 1;
+const MMR_VARIATION = 500;
 
-export const queueEvents = (socket, io, userInfo) => {
-	socket.on("queue:join-queue", async ({ room }) => {
-		joinQueue(room, userInfo)
-			.then((response) => {
-				io.to(room).emit("queue:player-joined");
-				io.to(`user_${userInfo.UserID}`).emit("queue:player-joined-user");
+export const queueEvents = (socket, io) => {
+	socket.on("queue:join-queue", ({ room, userInfo }) => {
+		io.to(room).emit("queue:player-joined");
 
-				queueArray.push(response);
-			})
-			.catch((err) => {
-				console.log(err);
-				io.to(`user_${userInfo.UserID}`).emit(
-					"event:error-found",
-					responseError(HTTP_STATUS.BAD_REQUEST, null, err.message),
-				);
-			});
+		queueArray.push({
+			socketId: socket.id,
+			userInfo,
+			joinedAt: Date.now(),
+		});
+
+		checkQueueAndPromptReady();
 	});
 
-	socket.on("queue:drop-queue", async ({ userid, room }) => {
-		dropQueue(userid)
-			.then(() => {
-				console.log(room);
-				io.to(room).emit("queue:player-dropped");
-				io.to(`user_${userid}`).emit("queue:player-dropped-user");
+	socket.on("queue:drop-queue", ({ userid, room }) => {
+		io.to(room).emit("queue:player-dropped");
 
-				const index = queueArray.findIndex((player) => player.UserID === userid);
-				if (index !== -1) {
-					queueArray.splice(index, 1);
-				}
-			})
-			.catch((err) => {
-				console.log(err);
-				io.to(`user_${userid}`).emit(
-					"event:error-found",
-					responseError(HTTP_STATUS.BAD_REQUEST, err, "No has podido salir de la cola"),
-				);
-			});
+		const index = queueArray.findIndex((player) => player.UserID === userid);
+		if (index !== -1) {
+			queueArray.splice(index, 1);
+		}
+	});
+
+	socket.on("queue:verify-queue-player", (players) => {
+		queueArray.push(players);
+	});
+
+	socket.on("queue:set-ready", () => {
+		console.log("set ready");
+		setPlayerReady(socket.id);
 	});
 
 	//After 8 players accept queue
@@ -183,41 +176,114 @@ export const queueEvents = (socket, io, userInfo) => {
 		}
 	});
 
-	setInterval(async () => {
-		verifyQueue().then((playerList) => {
-			if (playerList.length == 0) {
-				return;
+	socket.on("disconnect", () => {
+		removePlayerFromQueue(socket.id);
+		handlePlayerDisconnect(socket.id);
+	});
+
+	const checkQueueAndPromptReady = () => {
+		if (queueArray.length >= TEAM_SIZE * 2) {
+			const potentialMatch = queueArray.slice(0, TEAM_SIZE * 2);
+
+			potentialMatch.forEach((player) => {
+				io.to(player.socketId).emit("queue:prompt-ready");
+			});
+
+			readyArray = potentialMatch;
+
+			queueArray = queueArray.slice(TEAM_SIZE * 2);
+		}
+	};
+
+	const setPlayerReady = (socketId) => {
+		const player = readyArray.find((player) => player.socketId === socketId);
+		console.log(player);
+		if (player) {
+			player.userInfo.isJoined = 2;
+
+			if (readyArray.every((player) => player.userInfo.isJoined)) {
+				const matchGroup = formMatchGroup(readyArray);
+
+				if (matchGroup) {
+					startMatch(matchGroup.team1, matchGroup.team2);
+					readyArray = [];
+				}
+			}
+		}
+	};
+
+	const formMatchGroup = (readyPlayers) => {
+		readyPlayers.sort((a, b) => a.userInfo.Rating - b.userInfo.Rating);
+
+		let team1 = [];
+		let team2 = [];
+
+		for (let i = 0; i < readyPlayers.length; i++) {
+			if (team1.length < TEAM_SIZE && canJoinTeam(team1, readyPlayers[i].userInfo.Rating)) {
+				team1.push(readyPlayers[i]);
+			} else if (team2.length < TEAM_SIZE && canJoinTeam(team2, readyPlayers[i].userInfo.Rating)) {
+				team2.push(readyPlayers[i]);
 			}
 
-			playerList.forEach((player) => {
-				let playerDate = Math.floor(Date.now(player.join_date) / 1000);
-				if (helpers.currentDate() - playerDate > 1800) {
-					dropQueue(player.userid)
-						.then(() => {
-							io.to(player.region).emit("queue:player-dropped");
-							io.to(`user_${player.userid}`).emit("queue:player-dropped-user");
-						})
-						.catch((err) => {
-							console.log(err);
-							io.to(`user_${player.userid}`).emit(
-								"event:error-found",
-								responseError(HTTP_STATUS.BAD_REQUEST, err, "No has podido salir de la cola"),
-							);
-						});
-				}
+			if (team1.length === TEAM_SIZE && team2.length === TEAM_SIZE) {
+				return { team1, team2 };
+			}
+		}
+
+		// Si no se pueden formar equipos, los jugadores vuelven a la cola
+		queueArray.push(...readyPlayers);
+		readyArray = [];
+		return null;
+	};
+
+	const canJoinTeam = (team, mmr) => {
+		if (team.length === 0) return true;
+		const minMMR = Math.min(...team.map((player) => player.userInfo.mmr));
+		const maxMMR = Math.max(...team.map((player) => player.userInfo.mmr));
+		return mmr >= minMMR - MMR_VARIATION && mmr <= maxMMR + MMR_VARIATION;
+	};
+
+	const startMatch = (team1, team2) => {
+		const matchId = generateMatchId();
+		ongoingMatches.push({
+			matchId,
+			teams: { team1, team2 },
+			startTime: Date.now(),
+		});
+
+		[...team1, ...team2].forEach((player) => {
+			io.to(player.socketId).emit("match:start", {
+				matchId,
+				team: team1.includes(player) ? "team1" : "team2",
+				opponents: team1.includes(player) ? team2.map((p) => p.userInfo) : team1.map((p) => p.playerInfo),
 			});
 		});
-	}, 5000);
+	};
+
+	const removePlayerFromQueue = (socketId) => {
+		queueArray = queueArray.filter((player) => player.socketId !== socketId);
+	};
+
+	const handlePlayerDisconnect = (socketId) => {
+		let playerIndex = readyArray.findIndex((player) => player.socketId === socketId);
+
+		if (playerIndex !== -1) {
+			const disconnectedPlayer = readyArray[playerIndex];
+			readyArray.splice(playerIndex, 1);
+
+			// Regresar a la cola a todos los jugadores que estaban esperando para formar equipos
+			queueArray.push(...readyArray);
+			readyArray = [];
+
+			io.to(disconnectedPlayer.socketId).emit("queue:player-disconnected");
+			checkQueueAndPromptReady(); // Verificar si hay suficientes jugadores para reintentar el emparejamiento
+		} else {
+			// El jugador estaba en la cola normal
+			removePlayerFromQueue(socketId);
+		}
+	};
 };
 
-const verifyQueue = () => {
-	const verifyInterval = setInterval(async () => {
-		if (queueArray.length == 2) {
-			clearInterval(verifyInterval);
-
-			queueArray.forEach((player) => {
-				io.to(`user_${player.UserID}`).emit("queue:set-player-ready");
-			});
-		}
-	}, 50000);
+const generateMatchId = () => {
+	return `L4D2MATCH-${uuidv4()}`;
 };

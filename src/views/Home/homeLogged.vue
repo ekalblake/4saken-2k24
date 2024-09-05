@@ -1,13 +1,13 @@
 <template>
 	<v-container fluid>
 		<v-row>
-			<OnlineInfo />
+			<v-col cols="12">
+				<OnlineInfo />
+			</v-col>
 		</v-row>
 		<v-row>
 			<v-col cols="12">
-				<h6
-					class="text-fs-primary text-h4 text-center font-weight-bold text-uppercase"
-				>
+				<h6 class="text-fs-primary text-h4 text-center font-weight-bold text-uppercase">
 					{{ t("home_title") }}
 				</h6>
 			</v-col>
@@ -43,18 +43,9 @@
 				</v-card>
 			</v-col> -->
 			<v-col md="12" sm="12" cols="12">
-				<v-card
-					class="bgc_cards text-center ma-3"
-					min-height="575px"
-					min-width="300px"
-				>
+				<v-card class="bgc_cards text-center" min-height="575px" min-width="300px">
 					<div class="d-flex justify-center">
-						<v-img
-							width="auto"
-							height="300"
-							src="src/assets/types/TYPE_RANKED.png"
-						>
-						</v-img>
+						<v-img width="auto" height="300" src="src/assets/types/TYPE_RANKED.png"> </v-img>
 					</div>
 					<v-card-text class="text-white">
 						{{ t("subtitle_2") }}
@@ -120,9 +111,7 @@ import { useUserStore } from "@/store/userStore";
 
 const userStore = useUserStore();
 
-const userInfo = computed<PlayerItemModel | null>(
-	() => userStore.userInfo as PlayerItemModel | null,
-);
+const userInfo = computed<PlayerItemModel | null>(() => userStore.userInfo as PlayerItemModel | null);
 
 const { t } = useI18n();
 

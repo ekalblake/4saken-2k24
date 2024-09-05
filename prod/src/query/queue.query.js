@@ -2,12 +2,8 @@ import { HTTP_STATUS } from "../config";
 import pool from "../database";
 import { responseError, sqlResponse } from "../utils/errors";
 
-let sessionTime = 0;
-
-export const joinQueue = async (region, userInfo) => {
+export const joinQueue = async (region, UserID, sessionTime) => {
 	return new Promise(async (resolve, reject) => {
-		const { UserID } = userInfo;
-
 		let joinTime = Math.floor(new Date().getTime() / 1000);
 
 		try {
@@ -62,8 +58,6 @@ export const dropQueue = async (userid) => {
 				return reject(
 					responseError(HTTP_STATUS.BAD_REQUEST, null, "No puedes salir de la cola si no estás en alguna."),
 				);
-
-			sessionTime = Math.floor(new Date().getTime() / 1000);
 
 			resolve();
 		} catch (err) {

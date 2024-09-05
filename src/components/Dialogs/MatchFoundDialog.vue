@@ -29,6 +29,7 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: "update:model-value", value: boolean): void;
 	(e: "update:player-ready"): void;
+	(e: "update:player-drop"): void;
 }>();
 
 const updateDialog = (value: boolean) => {
@@ -46,6 +47,7 @@ const startTimeout = () => {
 		if (time.value == 1) {
 			time.value = 30;
 			emit("update:model-value", false);
+			emit("update:player-drop");
 			clearTimeout(timerId.value);
 		} else {
 			time.value--;
@@ -55,10 +57,9 @@ const startTimeout = () => {
 
 const setReady = () => {
 	emit("update:model-value", false);
+	emit("update:player-ready");
 	clearTimeout(timerId.value);
 	time.value = 30;
-
-	emit("update:player-ready");
 };
 
 watch(

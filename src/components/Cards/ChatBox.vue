@@ -1,85 +1,84 @@
 <template>
-	<v-container class="bgc_cards">
-		<v-card class="bgc_cards text-white overflow-auto" height="700px">
-			<div v-if="isLoading" class="progressbar_center">
-				<v-progress-circular indeterminate color="primary" />
+	<v-card class="bgc_cards text-white overflow-auto" max-height="500">
+		<div v-if="isLoading" class="progressbar_center">
+			<v-progress-circular indeterminate color="primary" />
+		</div>
+		<template v-else>
+			<div ref="messageContainer">
+				<v-list class="bg-transparent">
+					<v-list-item v-for="(message, i) in messageList?.getChats()" :key="i">
+						<template v-slot:prepend>
+							<v-avatar
+								@click="openProfile(message.getProfileURL())"
+								class="rounded-lg cursor-pointer"
+								:style="'box-shadow: 0px 0px 5px' + message.getColorChat() + ';'"
+							>
+								<v-img :src="message.getAvatarFull()" />
+							</v-avatar>
+						</template>
+						<template v-slot:default>
+							<span
+								class="overflow-auto"
+								:style="{
+									color: message.getColorChat(),
+									textShadow: '0 0 10px ' + message.getGlowColor(),
+									fontWeight: 'bold',
+								}"
+							>
+								{{ message.getPersonaName() }} </span
+							>:
+							<span
+								v-if="message.getIsSupporting()"
+								:style="{
+									color: 'navy',
+									textShadow: 'rgb(255 0 0) 0px 0px 10px',
+									fontWeight: 'bold',
+								}"
+								>{{ message.getMessageChat() }}
+							</span>
+							<span v-else>{{ message.getMessageChat() }} </span>
+						</template>
+					</v-list-item>
+				</v-list>
 			</div>
-			<template v-else>
-				<div ref="messageContainer">
-					<v-list class="bg-transparent">
-						<v-list-item v-for="(message, i) in messageList?.getChats()" :key="i">
-							<template v-slot:prepend>
-								<v-avatar
-									@click="openProfile(message.getProfileURL())"
-									class="rounded-lg cursor-pointer"
-									:style="'box-shadow: 0px 0px 5px' + message.getColorChat() + ';'"
-								>
-									<v-img :src="message.getAvatarFull()" />
-								</v-avatar>
-							</template>
-							<template v-slot:default>
-								<span
-									class="overflow-auto"
-									:style="{
-										color: message.getColorChat(),
-										textShadow: '0 0 10px ' + message.getGlowColor(),
-										fontWeight: 'bold',
-									}"
-								>
-									{{ message.getPersonaName() }} </span
-								>:
-								<span
-									v-if="message.getIsSupporting()"
-									:style="{
-										color: 'navy',
-										textShadow: 'rgb(255 0 0) 0px 0px 10px',
-										fontWeight: 'bold',
-									}"
-									>{{ message.getMessageChat() }}
-								</span>
-								<span v-else>{{ message.getMessageChat() }} </span>
-							</template>
-						</v-list-item>
-					</v-list>
-				</div>
-			</template>
-		</v-card>
-		<v-card class="bgc_cards text-white overflow-auto my-3">
-			<v-card-text v-if="userTyping != ''">
-				<p>{{ userTyping }}</p>
-			</v-card-text>
-			<v-card-text>
-				<v-text-field
-					label="Envia un mensaje aquí"
-					v-model="chatText"
-					@keydown.enter.prevent="addMessage"
-					counter
-					maxlength="150"
-				>
-					<template v-slot:append-inner>
-						<v-btn
-							class="rounded-lg"
-							variant="plain"
-							size="x-small"
-							icon="mdi-send"
-							@click="$emit('send-message')"
-						>
-						</v-btn>
-					</template>
-					<template v-slot:append>
-						<v-menu location="left" :close-on-content-click="false">
-							<template v-slot:activator="{ props }">
-								<v-btn class="rounded-lg" size="x-small" icon v-bind="props">
-									<v-icon> mdi-emoticon </v-icon>
-								</v-btn>
-							</template>
-							<EmojiPicker @select="insertEmoji" />
-						</v-menu>
-					</template>
-				</v-text-field>
-			</v-card-text>
-		</v-card>
-	</v-container>
+		</template>
+	</v-card>
+	<v-card class="bgc_cards text-white overflow-auto my-3">
+		<v-card-text v-if="userTyping != ''">
+			<p>{{ userTyping }}</p>
+		</v-card-text>
+		<v-card-text>
+			<v-text-field
+				hide-details
+				label="Envia un mensaje aquí"
+				v-model="chatText"
+				@keydown.enter.prevent="addMessage"
+				counter
+				maxlength="150"
+			>
+				<template v-slot:append-inner>
+					<v-btn
+						class="rounded-lg"
+						variant="plain"
+						size="x-small"
+						icon="mdi-send"
+						@click="$emit('send-message')"
+					>
+					</v-btn>
+				</template>
+				<template v-slot:append>
+					<v-menu location="left" :close-on-content-click="false">
+						<template v-slot:activator="{ props }">
+							<v-btn class="rounded-lg" size="x-small" icon v-bind="props">
+								<v-icon> mdi-emoticon </v-icon>
+							</v-btn>
+						</template>
+						<EmojiPicker @select="insertEmoji" />
+					</v-menu>
+				</template>
+			</v-text-field>
+		</v-card-text>
+	</v-card>
 </template>
 
 <script lang="ts" setup>
@@ -98,7 +97,6 @@ import PlayerItemModel from "@/models/Player/PlayerItemModel";
 import { chatService } from "@/services/Chat/ChatService";
 
 const props = defineProps<{
-	getRol: number | undefined;
 	getIsSupporting: boolean | undefined;
 	gameType: number;
 }>();

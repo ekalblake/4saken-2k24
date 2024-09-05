@@ -75,7 +75,7 @@ app.use("/auth", authRouter);
 /**
  * User Logs
  */
-app.use("/login", userRouter);
+app.use("/user", userRouter);
 
 /*******************************************************************************************************************
  * QUEUE Events
@@ -119,16 +119,6 @@ app.get("/getpartners", async (req, res) => {
 /**
  * Fetch all online users and admins connected
  */
-app.get("/getstatus", async (req, res) => {
-	const getStatus = await pool.query(`
-        SELECT COUNT(if(users_web.isonline = 1,1,null)) as onlineUser, 
-        COUNT(if(users_web.isonline = 1 and users_permisions.Rol=2,1,null)) as onlineAdmins 
-        FROM users_general 
-        INNER JOIN users_web ON  users_web.WebID =  users_general.UserID
-        INNER JOIN users_permisions ON users_permisions.PermisionsID = users_general.UserID
-    `);
-	res.json(getStatus);
-});
 
 app.all("*", (req, res) => {
 	res.redirect(CLIENT_URL);
