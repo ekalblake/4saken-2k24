@@ -1,28 +1,30 @@
-import mysql from 'mysql';
-import { promisify } from 'util';
+import mysql from "mysql2";
+import { promisify } from "util";
 
-import { database } from './keys.js';
+import { database } from "./keys.js";
 
 const pool = mysql.createPool(database);
 
+pool.query = promisify(pool.query).bind(pool);
+
 pool.getConnection((err, connection) => {
-     if (err) {
-          if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-               return console.error('DATABASE CONNECTION WAS CLOSED')
-          }
-          if (err.code === 'ER_CON_COUNT_ERROR') {
-               return console.error('DATABASE HAS MANY CONNECTIONS')
-          }
-          if (err.code === 'ECONNREFUSED') {
-               return console.error('DATABASE CONNECTION WAS REFUSED')
-          }
-     }
-     if (connection) connection.release();
-     console.log('DB IS CONNECTED');
-     return
-})
+	if (err) {
+		if (err.code === "PROTOCOL_CONNECTION_LOST") {
+			return console.error("DATABASE CONNECTION WAS CLOSED");
+		}
+		if (err.code === "ER_CON_COUNT_ERROR") {
+			return console.error("DATABASE HAS MANY CONNECTIONS");
+		}
+		if (err.code === "ECONNREFUSED") {
+			return console.error("DATABASE CONNECTION WAS REFUSED");
+		}
+	}
+	if (connection) connection.release();
+	console.log("DB IS CONNECTED");
+	return;
+});
 
 //Promisify pool query
-pool.query = promisify(pool.query)
+pool.query = promisify(pool.query);
 
-export default pool
+export default pool;

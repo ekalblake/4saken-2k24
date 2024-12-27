@@ -1,44 +1,33 @@
 <template>
 	<v-app>
-		<video autoplay muted loop class="video">
-			<source src="@/assets/background-video.webm" type="video/mp4" />
-		</video>
 		<NavigationBar />
-		<v-main class="content">
+		<v-main class="content h-100">
 			<router-view :key="route.fullPath" />
 		</v-main>
-		<!-- <Footer /> -->
+		<FooterCard />
 		<!-- <early-access 
           :dialog="dialog" 
           @verify-dialog="closeDialog"
           /> -->
 	</v-app>
+	<NotificactionComponent />
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import NavigationBar from "./components/Navigation/NavigationBar.vue";
+import NavigationBar from "@/components/Navigation/NavigationBar.vue";
+import FooterCard from "@/components/Cards/FooterCard.vue";
+import NotificactionComponent from "@/components/Extras/NotificactionComponent.vue";
 
 import { useRoute } from "vue-router";
 
-import { useUserStore } from "@/store/userStore";
-
-const useStore = useUserStore();
+import useSocket from "@/composables/useSocket";
 
 const route = useRoute();
 
-onMounted(() => {
-	useStore.fetchUserInfo();
-});
+const socketInstance = useSocket();
 </script>
 <style>
 @import "./style.css";
-
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap");
-
-* {
-	font-family: "Open Sans", sans-serif;
-}
 
 html,
 body {
@@ -48,30 +37,16 @@ body {
 
 ::-webkit-scrollbar {
 	width: 5px;
+	display: none;
 }
 
 ::-webkit-scrollbar-track {
-	background: #522323;
-	box-shadow: 0 0 10px #c20606;
+	background: #1f1f54;
+	box-shadow: 0 0 10px #1f1f54;
 	border-radius: 50px;
-}
-
-::-webkit-scrollbar-thumb {
-	background: #c2b4b4;
-	border-radius: 50px;
-}
-
-.video {
-	object-fit: cover;
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	top: 0;
-	left: 0;
 }
 
 .content {
-	position: relative;
-	z-index: 1;
+	background-color: #1f1f54;
 }
 </style>

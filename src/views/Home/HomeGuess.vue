@@ -9,30 +9,29 @@
 					<v-card-text>
 						{{ t("inicia_sesion") }}
 					</v-card-text>
-					<v-img
-						class="cursor-pointer"
-						@click="steamLogin()"
-						height="80"
-						src="src/assets/link1.png"
-					/>
+					<v-card-text class="d-flex justify-center align-center">
+						<v-img
+							class="cursor-pointer"
+							@click="steamLogin()"
+							src="src/assets/sign-in.png"
+							max-width="200"
+							max-height="200"
+							contain
+						/>
+					</v-card-text>
 					<v-card-text class="text-capitalize">
-						<RouterLink to="/about">
+						<v-chip @click="router.push('/about')" class="bg-success">
 							{{ t("aprende_mas") }}
-						</RouterLink>
+						</v-chip>
 					</v-card-text>
 				</v-col>
 				<v-col cols="12" sm="12" md="7" lg="7">
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img
-								height="70"
-								src="src/assets/matchup/matchmaking.png"
-							/>
+							<v-img height="70" src="src/assets/matchup/matchmaking.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
-							<v-card-subtitle
-								class="text-uppercase font-weight-bold"
-							>
+							<v-card-subtitle class="text-uppercase font-weight-bold">
 								{{ t("emparejamiento_justo") }}
 							</v-card-subtitle>
 							<v-card-text>
@@ -43,15 +42,10 @@
 					<v-divider class="pa-2"></v-divider>
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img
-								height="70"
-								src="src/assets/matchup/versus.png"
-							/>
+							<v-img height="70" src="src/assets/matchup/versus.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
-							<v-card-subtitle
-								class="text-uppercase font-weight-bold"
-							>
+							<v-card-subtitle class="text-uppercase font-weight-bold">
 								{{ t("emparejamiento_teams") }}
 							</v-card-subtitle>
 							<v-card-text>
@@ -63,15 +57,10 @@
 
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img
-								height="70"
-								src="src/assets/matchup/progress.png"
-							/>
+							<v-img height="70" src="src/assets/matchup/progress.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
-							<v-card-subtitle
-								class="text-uppercase font-weight-bold pb-0"
-							>
+							<v-card-subtitle class="text-uppercase font-weight-bold pb-0">
 								{{ t("progress_skill") }}
 							</v-card-subtitle>
 							<v-card-text>
@@ -83,15 +72,10 @@
 
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img
-								height="70"
-								src="src/assets/matchup/tournaments.png"
-							/>
+							<v-img height="70" src="src/assets/matchup/tournaments.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
-							<v-card-subtitle
-								class="text-uppercase font-weight-bold pb-0"
-							>
+							<v-card-subtitle class="text-uppercase font-weight-bold pb-0">
 								{{ t("torneos") }}
 							</v-card-subtitle>
 							<v-card-text>
@@ -106,6 +90,10 @@
 </template>
 <script lang="ts" setup>
 import { API_URL } from "@/constants/constants";
+
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 import { useI18n } from "vue-i18n";
 

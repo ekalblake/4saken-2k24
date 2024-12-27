@@ -5,36 +5,26 @@ import useSocket from "@/composables/useSocket";
 
 const socketInstance = useSocket();
 export class QueuesService {
-	public joinQueue(room: number): Promise<void> {
+	public joinQueue(room: number): Promise<AxiosResponse<IApiResponse<IUserWeb>>> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const { data } = await axios.post(`/queue/player/join`, {
+				const response = await axios.post(`/queue/player/join`, {
 					room,
 				});
 
-				socketInstance.emit("queue:join-queue", {
-					room,
-					userInfo: data.data,
-				});
-
-				resolve(data);
+				resolve(response);
 			} catch (err) {
 				reject(err);
 			}
 		});
 	}
 
-	public dropQueue(userid: number | undefined, gameType: number): Promise<void> {
+	public dropQueue(): Promise<AxiosResponse<IApiResponse>> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const { data } = await axios.delete(`/queue/player/drop`);
+				const response = await axios.delete(`/queue/player/drop`);
 
-				socketInstance.emit("queue:drop-queue", {
-					userid,
-					room: gameType,
-				});
-
-				resolve(data);
+				resolve(response);
 			} catch (err) {
 				reject(err);
 			}
@@ -48,11 +38,11 @@ export class QueuesService {
 		});
 	}
 
-	public async getRankedList(gameType: number): Promise<IQueue[]> {
+	public async getRankedList(gameType: number): Promise<AxiosResponse<IApiResponse<IQueue[]>>> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const { data } = await axios.get(`/queue/get-queue-list/${gameType}`);
-				resolve(data);
+				const response = await axios.get(`/queue/get-queue-list/${gameType}`);
+				resolve(response);
 			} catch (err) {
 				reject(err);
 			}

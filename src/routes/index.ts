@@ -5,6 +5,7 @@ import { WebPages } from "../constants/constants";
 
 import HomeView from "../views/Home/HomeView.vue";
 import RankedView from "../views/GameTypes/RankedView.vue";
+import { useUserStore } from "@/store/userStore";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -16,9 +17,9 @@ const routes: Array<RouteRecordRaw> = [
 		path: "/game/ranked",
 		name: WebPages.RANKED,
 		component: RankedView,
-		/* meta: {
+		meta: {
 			requiresAuth: true,
-		}, */
+		},
 	},
 ];
 
@@ -28,13 +29,18 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+	const userStore = useUserStore();
+
+	const isAuthenticated = await userStore.checkAuthentication();
+
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
-		if (localStorage.getItem("steamid") == null) {
+		if (!isAuthenticated) {
 			next({ name: WebPages.HOME });
 		} else {
-			const user: number = JSON.parse(localStorage.getItem("rol") || "");
+			const verifyAdmin = userStore.getUserInfo?.getRol();
+
 			if (to.matched.some((record) => record.meta.is_admin)) {
-				if (user == 2) {
+				if (verifyAdmin == 2) {
 					next();
 				} else {
 					next({ name: WebPages.HOME });

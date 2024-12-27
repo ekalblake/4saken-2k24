@@ -9,7 +9,6 @@ import {
 	playerJoinQueue,
 	playerDropQueue,
 	dropQueueAdmin,
-	listQueue,
 	currentGames,
 	matchStatus,
 	getMatchInfo,
@@ -24,9 +23,7 @@ const router = express.Router();
 router
 	.post("/player/join", isAuthorized, /* isBanned, */ playerJoinQueue)
 	.delete("/player/drop", isAuthorized, playerDropQueue)
-
 	.delete("/drop/admin/:userid/:region", isAuthorized, isAdmin, dropQueueAdmin)
-	.get("/list", listQueue)
 	.get("/checkqueue", isAuthorized, async (req, res) => {
 		const steamid = steam().convertToText(req.session.passport.user.id);
 

@@ -40,3 +40,25 @@ export const sqlResponse = (data) => {
 		errno: data.errno,
 	};
 };
+
+export const sendResponse = (res, status, data, message = "") => {
+	res.status(status).json({
+		success: status < 400,
+		message,
+		data,
+	});
+};
+
+export const sendResponseObj = (res, status, data) => {
+	res.status(status).json(data);
+};
+
+export const handleSocketError = (socket, event, error, userid, message = "") => {
+	const formattedError = {
+		data: null,
+		message: error instanceof Error ? error.message : message,
+		success: false,
+	};
+
+	socket.to(userid).emit(event, formattedError);
+};

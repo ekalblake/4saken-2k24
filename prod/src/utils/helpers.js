@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { queryGetIP } from "../query/extra.querys.js";
+import { queryGetIP } from "../models/generalModel.js";
 import Gamedig from "gamedig";
 
 const helpers = {};
@@ -96,5 +96,15 @@ export const getRandomIP = async () => {
 };
 
 //https://codingnconcepts.com/javascript/how-to-divide-array-in-equal-parts-in-javascript/
+
+export const getRandomCode = () => {
+	const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	let code = "";
+	for (let i = 0; i < 8; i++) {
+		const randomIndex = Math.floor(Math.random() * characters.length);
+		code += characters[randomIndex];
+	}
+	return code;
+};
 
 export default helpers;

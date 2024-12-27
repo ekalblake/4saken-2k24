@@ -4,7 +4,7 @@ import pool from "../database.js";
 import errors from "../utils/errors.js";
 import { HTTP_STATUS } from "../config.js";
 
-import { getMessageList } from "../query/chat.querys.js";
+import { getMessageList } from "../models/chatModel.js";
 
 import { responseError, responseSuccess } from "../utils/errors.js";
 

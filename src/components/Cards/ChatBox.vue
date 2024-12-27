@@ -1,5 +1,5 @@
 <template>
-	<v-card class="bgc_cards text-white overflow-auto" max-height="500">
+	<v-card class="bgc_cards text-white overflow-auto" max-height="1000" max-width="650">
 		<div v-if="isLoading" class="progressbar_center">
 			<v-progress-circular indeterminate color="primary" />
 		</div>
@@ -28,7 +28,7 @@
 								{{ message.getPersonaName() }} </span
 							>:
 							<span
-								v-if="message.getIsSupporting()"
+								v-if="userInfo?.getIsSupporting()"
 								:style="{
 									color: 'navy',
 									textShadow: 'rgb(255 0 0) 0px 0px 10px',
@@ -43,7 +43,7 @@
 			</div>
 		</template>
 	</v-card>
-	<v-card class="bgc_cards text-white overflow-auto my-3">
+	<v-card class="bgc_cards text-white overflow-auto my-3" max-height="250" max-width="700">
 		<v-card-text v-if="userTyping != ''">
 			<p>{{ userTyping }}</p>
 		</v-card-text>
@@ -89,15 +89,16 @@ import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
 
 import useSocket from "@/composables/useSocket";
+
 import { useUserStore } from "@/store/userStore";
 
 import ChatModel from "@/models/Chat/ChatModel";
 import ChatItemModel from "@/models/Chat/ChatItemModel";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
+
 import { chatService } from "@/services/Chat/ChatService";
 
 const props = defineProps<{
-	getIsSupporting: boolean | undefined;
 	gameType: number;
 }>();
 
@@ -149,28 +150,8 @@ const addMessage = async () => {
 
 //Insert Emoji
 const insertEmoji = (emoji: any) => {
-	chatText.value += emoji.data;
+	chatText.value += emoji.i;
 };
-
-//Delete message as Admin
-/* const deleteMessageAsAdmin = async (chatId: number) => {
-	const response = await chatService.deleteMessageAsAdmin(chatId);
-
-	if (response.status) {
-		snackbarObj.value = new SnackBarClass(response);
-		snackbarObj.value.setSnackbar(
-			response.data.msg,
-			"red",
-			true,
-			response.status,
-		);
-	} else {
-		socketInstance.emit("delete:message:admin", {
-			chatId,
-			room: props.gameType,
-		});
-	}
-}; */
 
 const scrollToBottom = () => {
 	nextTick(() => {

@@ -23,7 +23,7 @@
 			:key="i"
 		>
 			<template v-slot:prepend>
-				<v-avatar tile size="25" :style="'box-shadow: 0px 0px 5px' + online.getColorChat() + ';'">
+				<v-avatar tile size="25" :style="online.getBackgroundColor()">
 					<img height="30" alt="Profile Pic" :src="online.getAvatarFull()" />
 				</v-avatar>
 			</template>
@@ -39,29 +39,12 @@
 				</v-card-text>
 			</template>
 			<template v-slot:append>
-				<v-card-text
-					:style="{
-						color: online.getColorChat(),
-						textShadow: '0 0 10px ' + online.getGlowColor(),
-						fontWeight: 'bold',
-					}"
-				>
-					{{ online.getRating() }}
-				</v-card-text>
 				<v-tooltip location="top">
 					<template v-slot:activator="{ props }">
-						<span v-bind="props">
-							<v-img
-								width="33px"
-								height="25px"
-								:alt="online.getMmrName()"
-								:src="`src/assets/ranked_medals/${online.getMmrImage()}`"
-							/>
-						</span>
+						<v-avatar v-bind="props" variant="plain" rounded="0" size="35" :image="online.getMmrImage()">
+						</v-avatar>
 					</template>
-					<small>
-						{{ online.getMmrName() }}
-					</small>
+					{{ online.getMmrName() }} - {{ online.getRating() }}
 				</v-tooltip>
 			</template>
 		</v-list-item>
@@ -77,8 +60,11 @@ import PlayerItemModel from "@/models/Player/PlayerItemModel";
 import useSocket from "@/composables/useSocket";
 
 import { useI18n } from "vue-i18n";
+import useEmitter from "@/composables/useEmitter";
 
 const { t } = useI18n();
+
+const emitter = useEmitter();
 
 const socketInstance = useSocket();
 
@@ -87,7 +73,7 @@ const onlinePlayers = ref<PlayersModel | null>(null);
 const playerListInput = ref<string>("");
 
 const socketIo = () => {
-	socketInstance.on("user:join-room", (userInfo: PlayerItemModel) => {
+	socketInstance.on("room:join-room", (userInfo: PlayerItemModel) => {
 		let findIndex: any = onlinePlayers.value
 			?.getPlayers()
 			.filter((item: PlayerItemModel) => item.getUserId() === userInfo.UserID);
@@ -108,28 +94,30 @@ const socketIo = () => {
 	});
 };
 
-const getOnlineUsersList = async () => {
-	try {
-		const { data } = await playerService.getOnlinePlayerList();
-
-		onlinePlayers.value = new PlayersModel(data);
-	} catch (err) {
-		console.log(err);
-	}
+const getOnlinePlayers = () => {
+	playerService
+		.getOnlinePlayerList()
+		.then((response) => {
+			onlinePlayers.value = new PlayersModel(response.data.data);
+		})
+		.catch((err) => {
+			emitter.emit("alert", err.response.data);
+		});
 };
 
 const getPlayersFilter = computed<any>(() => {
+	if (!onlinePlayers.value) return;
+
 	if (playerListInput.value == "") return onlinePlayers.value;
 
-	const newPlayersArray: PlayerItemModel[] | undefined = onlinePlayers.value?.getPlayers().filter((userName) => {
+	const newPlayersArray: PlayerItemModel[] = onlinePlayers.value?.getPlayers().filter((userName) => {
 		return userName.getPersonaName().includes(playerListInput.value);
 	});
-	//@ts-ignore
 	return new PlayersModel(newPlayersArray);
 });
 
 onMounted(() => {
-	getOnlineUsersList();
+	getOnlinePlayers();
 	socketIo();
 });
 </script>

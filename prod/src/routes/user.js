@@ -1,35 +1,37 @@
 import express from "express";
 import { isAuthorized } from "../auth/auth-steam.js";
 import {
-	registerUser,
+	fetchUser,
 	listUser,
 	onlineListUser,
 	configUser,
 	failedUser,
 	getUserMmr,
 	getConnectionStatus,
+	updateRegion,
+	createParty,
+	joinParty,
+	checkParty,
+	removePartyMember,
+	deleteParty,
+	checkCurrentGame,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 router
 	.get("/failed", failedUser)
-	/**
-	 *   Gets user information after upload
-	 */
-	.get("/start", isAuthorized, registerUser)
-	/**
-	 *   Fetch all users for leaderboard
-	 */
+	.get("/start", isAuthorized, fetchUser)
+	.put("/update-region", isAuthorized, updateRegion)
+	.post("/party/create-party", createParty)
+	.post("/party/join-party", joinParty)
+	.get("/party/verify-party-status", checkParty)
+	.delete("/party/drop-party/:party_id", removePartyMember)
+	.delete("/party/drop-party-room/:party_id", deleteParty)
 	.get("/get/users", listUser)
-	/**
-	 * GET ONLINE USERS
-	 */
-	.get("/get/onlineusers", onlineListUser)
-	/**
-	 * User Configuration : Glow Color
-	 */
+	.get("/get/online-users", onlineListUser)
 	.put("/config", configUser)
 	.get("/get/mmr", getUserMmr)
-	.get("/connection-status", getConnectionStatus);
+	.get("/online-status", getConnectionStatus)
+	.get("/get/current-game", checkCurrentGame);
 export default router;

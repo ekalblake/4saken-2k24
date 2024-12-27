@@ -1,15 +1,8 @@
-/************************************************************************************************************
- * Send Message Events
- * chat:handle-send-message -> All message information
- * istyping -> Brings if user is currently typing
- ***********************************************************************************************************/
-
-import { HTTP_STATUS } from "../config";
-import { sendMessage, setOnline } from "../query/chat.querys";
+import { HTTP_STATUS } from "../config.js";
+import { sendMessage } from "../models/chatModel.js";
 
 export const chatEvents = (socket, io, userInfo) => {
 	const messageCounts = {};
-
 
 	socket.on("chat:handle-send-message", ({ message, room }) => {
 		const userId = message.userid;

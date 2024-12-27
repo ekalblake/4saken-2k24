@@ -12,9 +12,11 @@ export class InformationItemModel {
 	public getAllOnline(): number {
 		return this.onlinePlayers;
 	}
+
 	public getOnlineAdmins(): number {
 		return this.onlineAdmins;
 	}
+	
 	public getOnlineUser(): number {
 		return this.onlineUser;
 	}

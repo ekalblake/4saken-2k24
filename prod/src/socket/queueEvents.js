@@ -1,289 +1,198 @@
-import helpers from "../utils/helpers";
-const { v4: uuidv4 } = require("uuid");
-
-/************************************************************************************************************
- * Queue Events
- ***********************************************************************************************************/
+import { dropQueue, getQueuedUsers, insertNewgame, updateCurrentGame } from "../models/queueModel.js";
 
 let queueArray = [];
-let readyArray = [];
-let ongoingMatches = [];
 
-const TEAM_SIZE = 1;
-const MMR_VARIATION = 500;
+const MMR_THRESHOLD = 500;
+
+try {
+	const response = await getQueuedUsers();
+
+	queueArray = response;
+} catch (err) {
+	console.log(err);
+}
 
 export const queueEvents = (socket, io) => {
-	socket.on("queue:join-queue", ({ room, userInfo }) => {
-		io.to(room).emit("queue:player-joined");
+	socket.on("queue:join-queue", async ({ room, userInfo }) => {
+		console.log(userInfo);
 
-		queueArray.push({
+		let selectedRegions;
+		if (userInfo.regions) {
+			selectedRegions = userInfo.regions;
+		} else {
+			selectedRegions = ["NA"];
+		}
+
+		const jugador = {
+			UserID: userInfo.UserID,
+			SteamID64: userInfo.SteamID64,
+			room: userInfo.room,
+			joined_date: userInfo.joined_date,
+			avatarfull: userInfo.avatarfull,
+			personaname: userInfo.personaname,
+			profileurl: userInfo.profileurl,
+			regions: selectedRegions,
+			Rol: userInfo.Rol,
+			IsPremium: userInfo.isPremium,
+			colorChat: userInfo.colorChat,
+			glowColor: userInfo.glowColor,
+			Rating: userInfo.Rating,
+			GamesPlayed: userInfo.GamesPlayed,
+			LastGame: userInfo.LastGame,
+			Wins: userInfo.Wins,
 			socketId: socket.id,
-			userInfo,
-			joinedAt: Date.now(),
-		});
+		};
 
-		checkQueueAndPromptReady();
+		queueArray.push(jugador);
+
+		io.to(room).emit("queue:player-joined", jugador);
+
+		const player = queueArray.find((p) => p.UserID === userInfo.UserID);
+
+		const potentialMatches = findPotentialMatches(player);
+
+		if (potentialMatches.length >= 8) {
+			const bestRegion = findBestRegion(potentialMatches);
+
+			const matchesInBestRegion = potentialMatches.filter((player) => player.regions.includes(bestRegion));
+
+			if (matchesInBestRegion.length >= 8) {
+				const sortedPlayers = matchesInBestRegion.sort((a, b) => b.joined_date - a.joined_date);
+
+				const last8Players = sortedPlayers.slice(0, 8);
+
+				//TODO: Borrar en la base de datos
+				await startMatch(last8Players, io, room, bestRegion);
+			} else {
+				io.emit(
+					"queue:waiting",
+					`Not enough players in the best region (${bestRegion}). Currently found: ${matchesInBestRegion.length}`,
+				);
+			}
+		} else {
+			socket.emit("queue:waiting", `Waiting for more players. Currently found: ${potentialMatches.length}`);
+		}
 	});
 
 	socket.on("queue:drop-queue", ({ userid, room }) => {
-		io.to(room).emit("queue:player-dropped");
-
 		const index = queueArray.findIndex((player) => player.UserID === userid);
 		if (index !== -1) {
 			queueArray.splice(index, 1);
 		}
+
+		io.to(room).emit("queue:player-dropped", userid);
+		io.to(`user_${userid}`).emit("queue:player-dropped-single");
 	});
 
-	socket.on("queue:verify-queue-player", (players) => {
-		queueArray.push(players);
-	});
-
-	socket.on("queue:set-ready", () => {
-		console.log("set ready");
-		setPlayerReady(socket.id);
-	});
-
-	//After 8 players accept queue
-	socket.on("accept:game", async ({ userid, room }) => {
-		queryUpdatePlayer(userid);
-
-		const getInfoUser = await pool.query(`SELECT * FROM l4d2_queue where userid = ?`, [userid]);
-
-		if (getInfoUser.length == 0) return;
-
-		io.to(room).emit("accept:game", userid, getInfoUser[0].region);
-
-		//Verifica que hayan 8 para poder empezar la partida.
-		let queryVerify = await pool.query(`CALL playerAcceptMatchInformation(?)`, [getInfoUser[0].region]);
-
-		//Longitud
-		if (queryVerify[0].length == 8) {
-			//isJoined ( ready ) = 2
-			await pool.query(
-				"DELETE FROM `4saken`.l4d2_queue WHERE isjoined = 2 and region = ?",
-				getInfoUser[0].region,
-			);
-
-			//Votar a los 8 de la region
-			io.to(room).emit("drop:players", getInfoUser[0].region);
-
-			let getIP = await getRandomIP();
-
-			let finishedTeam = await helpers.getTeams(queryVerify[0], getIP);
-
-			/* let unixTimestamp = Math.floor(Date.now() / 1000);
-
-                    const newMessage = {
-                         'userid': 12,
-                         'message_body': JSON.stringify(finishedTeam),
-                         'room': room,
-                         'created_at': unixTimestamp
-                    }
-                    console.log(newMessage);
-                    let gameStarted = await pool.query('INSERT INTO chat_room SET ?', [newMessage]) */
-
-			/* let selectMessage = await pool.query(`SELECT chat_room.chatid,
-                                                                      chat_room.message_body,
-                                                                      chat_room.room,
-                                                                      chat_room.created_at,
-                                                                      users_general.UserID
-                                                            FROM 4saken.chat_room
-                                                                      INNER JOIN 4saken.users_general
-                                                                                ON chat_room.userid = users_general.userid
-                                                            WHERE chat_room.userid = ?
-                                                                 and chat_room.message_body = ?`, [newMessage.userid, newMessage.message_body]) */
-
-			//Emitir mensaje global
-			/* io.to(room).emit('message:chat', newMessage) */
-			/* 'teamA': '[' + JSON.stringify(finishedTeam['teamA'][0]) + ',' + JSON.stringify(finishedTeam['teamA'][1]) + ',' + JSON.stringify(finishedTeam['teamA'][2]) + ',' + JSON.stringify(finishedTeam['teamA'][3]) + ']',
-                         'teamB': '[' + JSON.stringify(finishedTeam['teamB'][0]) + ',' + JSON.stringify(finishedTeam['teamB'][1]) + ',' + JSON.stringify(finishedTeam['teamB'][2]) + ',' + JSON.stringify(finishedTeam['teamB'][3]) + ']',
-                          */
-			const newLobby = {
-				teamA:
-					"[" +
-					JSON.stringify(finishedTeam["teamA"][0]) +
-					"," +
-					JSON.stringify(finishedTeam["teamA"][1]) +
-					"," +
-					JSON.stringify(finishedTeam["teamA"][2]) +
-					"," +
-					JSON.stringify(finishedTeam["teamA"][3]) +
-					"]",
-				teamB:
-					"[" +
-					JSON.stringify(finishedTeam["teamB"][0]) +
-					"," +
-					JSON.stringify(finishedTeam["teamB"][1]) +
-					"," +
-					JSON.stringify(finishedTeam["teamB"][2]) +
-					"," +
-					JSON.stringify(finishedTeam["teamB"][3]) +
-					"]",
-				region: getInfoUser[0].region,
-				map: finishedTeam.map,
-				ip: finishedTeam.ip,
-			};
-			await pool.query("INSERT INTO `4saken`.l4d2_queue_game SET ?", [newLobby]);
-
-			io.emit("current:games", newLobby);
-		}
-	});
-
-	socket.on("room:new-game", async () => {
-		//Verifica que existan 8 en la región
-		let queryVerify = await queryPlayersVerify(region);
-
-		//Longitud
-		if (queryVerify.length != 8) return;
-
-		let timerId = setInterval(countdown, 1000);
-
-		let verifyAfter = await queryPlayersVerifyCounter(region);
-
-		async function countdown() {
-			//Longitud
-			/* if (timeRemaining == 1 || verifyAfter.length != 8) {
-				clearTimeout(timerId);
-				timeRemaining = 30;
-
-				//Longitud
-				if (verifyAfter.length == 8) {
-					io.to(room).emit("player:left", userInfo.UserID);
-					let verifyUnready = await queryVerifyUnreadyPlayers(region);
-					console.log(verifyUnready);
-					verifyUnready.map(async (player) => {
-						let dropQueue = queryDropPlayerQueue(player.userid);
-						if (dropQueue) {
-							try {
-								//Actualizar estado de todos a 1
-								await queryUpdatePlayerStatus(player.region);
-
-								io.to(room).emit("drop:queue", player.userid, player.region);
-							} catch (err) {
-								console.log(err);
-							}
-						}
-					});
-				} else {
-					io.to(room).emit("player:left", userInfo.UserID);
-					console.log("Se fue uno");
-				}
-			} else {
-				verifyAfter = await queryPlayersVerifyCounter(region);
-				timeRemaining--;
-				console.log(timeRemaining);
-			} */
-		}
+	socket.on("queue:drop-party-member", (playerId) => {
+		io.to(`user_${playerId}`).emit("queue:drop-party-member");
 	});
 
 	socket.on("disconnect", () => {
 		removePlayerFromQueue(socket.id);
-		handlePlayerDisconnect(socket.id);
 	});
 
-	const checkQueueAndPromptReady = () => {
-		if (queueArray.length >= TEAM_SIZE * 2) {
-			const potentialMatch = queueArray.slice(0, TEAM_SIZE * 2);
+	const startMatch = async (players, io, room, region) => {
+		try {
+			const gameid = generateMatchId();
 
-			potentialMatch.forEach((player) => {
-				io.to(player.socketId).emit("queue:prompt-ready");
+			const teams = assignTeamsByMMR(players);
+
+			const totalMMR = players.reduce((sum, player) => sum + player.Rating, 0);
+			const mmr_average = Math.round(totalMMR / players.length);
+
+			const objReturn = {
+				gameid: gameid,
+				teamA: teams.teamA,
+				teamB: teams.teamB,
+				ip: "192.168.1.1",
+				map: "The Parish",
+				gamestarted: new Date(),
+				room,
+				status: 1,
+				region,
+				mmr_average,
+			};
+
+			players.forEach((player) => {
+				const index = queueArray.findIndex((p) => p.UserID === player.UserID);
+				if (index !== -1) queueArray.splice(index, 1);
+
+				updateCurrentGame(gameid, player.UserID);
+
+				dropQueue(player.UserID);
+
+				io.to(`user_${player.UserID}`).emit("queue:player-dropped-single");
+				io.to(`user_${player.UserID}`).emit("queue:match-start", objReturn);
+				io.to(room).emit("queue:player-dropped", player.UserID);
 			});
 
-			readyArray = potentialMatch;
+			await insertNewgame(objReturn);
 
-			queueArray = queueArray.slice(TEAM_SIZE * 2);
+			console.log(`Match started with players: ${players.map((p) => p.personaname).join(", ")}`);
+		} catch (err) {
+			console.log(err);
 		}
-	};
-
-	const setPlayerReady = (socketId) => {
-		const player = readyArray.find((player) => player.socketId === socketId);
-		console.log(player);
-		if (player) {
-			player.userInfo.isJoined = 2;
-
-			if (readyArray.every((player) => player.userInfo.isJoined)) {
-				const matchGroup = formMatchGroup(readyArray);
-
-				if (matchGroup) {
-					startMatch(matchGroup.team1, matchGroup.team2);
-					readyArray = [];
-				}
-			}
-		}
-	};
-
-	const formMatchGroup = (readyPlayers) => {
-		readyPlayers.sort((a, b) => a.userInfo.Rating - b.userInfo.Rating);
-
-		let team1 = [];
-		let team2 = [];
-
-		for (let i = 0; i < readyPlayers.length; i++) {
-			if (team1.length < TEAM_SIZE && canJoinTeam(team1, readyPlayers[i].userInfo.Rating)) {
-				team1.push(readyPlayers[i]);
-			} else if (team2.length < TEAM_SIZE && canJoinTeam(team2, readyPlayers[i].userInfo.Rating)) {
-				team2.push(readyPlayers[i]);
-			}
-
-			if (team1.length === TEAM_SIZE && team2.length === TEAM_SIZE) {
-				return { team1, team2 };
-			}
-		}
-
-		// Si no se pueden formar equipos, los jugadores vuelven a la cola
-		queueArray.push(...readyPlayers);
-		readyArray = [];
-		return null;
-	};
-
-	const canJoinTeam = (team, mmr) => {
-		if (team.length === 0) return true;
-		const minMMR = Math.min(...team.map((player) => player.userInfo.mmr));
-		const maxMMR = Math.max(...team.map((player) => player.userInfo.mmr));
-		return mmr >= minMMR - MMR_VARIATION && mmr <= maxMMR + MMR_VARIATION;
-	};
-
-	const startMatch = (team1, team2) => {
-		const matchId = generateMatchId();
-		ongoingMatches.push({
-			matchId,
-			teams: { team1, team2 },
-			startTime: Date.now(),
-		});
-
-		[...team1, ...team2].forEach((player) => {
-			io.to(player.socketId).emit("match:start", {
-				matchId,
-				team: team1.includes(player) ? "team1" : "team2",
-				opponents: team1.includes(player) ? team2.map((p) => p.userInfo) : team1.map((p) => p.playerInfo),
-			});
-		});
 	};
 
 	const removePlayerFromQueue = (socketId) => {
 		queueArray = queueArray.filter((player) => player.socketId !== socketId);
 	};
-
-	const handlePlayerDisconnect = (socketId) => {
-		let playerIndex = readyArray.findIndex((player) => player.socketId === socketId);
-
-		if (playerIndex !== -1) {
-			const disconnectedPlayer = readyArray[playerIndex];
-			readyArray.splice(playerIndex, 1);
-
-			// Regresar a la cola a todos los jugadores que estaban esperando para formar equipos
-			queueArray.push(...readyArray);
-			readyArray = [];
-
-			io.to(disconnectedPlayer.socketId).emit("queue:player-disconnected");
-			checkQueueAndPromptReady(); // Verificar si hay suficientes jugadores para reintentar el emparejamiento
-		} else {
-			// El jugador estaba en la cola normal
-			removePlayerFromQueue(socketId);
-		}
-	};
 };
 
 const generateMatchId = () => {
-	return `L4D2MATCH-${uuidv4()}`;
+	const timestamp = Math.floor(Date.now() / 1000);
+	const randomNum = Math.floor(Math.random() * 10000);
+	return `L4D2MATCH-${timestamp}-${randomNum}`;
+};
+
+const findPotentialMatches = (player) => {
+	const { regions, Rating } = player;
+
+	const potentialMatches = queueArray.filter((otherPlayer) => {
+		const hasCommonRegion = otherPlayer.regions.some((region) => regions.includes(region));
+
+		const isMMRSimilar = Math.abs(otherPlayer.Rating - Rating) <= MMR_THRESHOLD;
+
+		return hasCommonRegion && isMMRSimilar;
+	});
+	return potentialMatches;
+};
+
+const assignTeamsByMMR = (players) => {
+	const sortedPlayers = players.sort((a, b) => b.Rating - a.Rating);
+
+	let teamA = [];
+	let teamB = [];
+	let teamAMMR = 0;
+	let teamBMMR = 0;
+
+	sortedPlayers.forEach((player) => {
+		if (teamAMMR <= teamBMMR) {
+			teamA.push(player);
+			teamAMMR += player.Rating;
+		} else {
+			teamB.push(player);
+			teamBMMR += player.Rating;
+		}
+	});
+
+	return { teamA, teamB };
+};
+
+const findBestRegion = (players) => {
+	const regionCounts = {};
+
+	players.forEach((player) => {
+		player.regions.forEach((region) => {
+			if (!regionCounts[region]) {
+				regionCounts[region] = 0;
+			}
+			regionCounts[region]++;
+		});
+	});
+
+	const bestRegion = Object.keys(regionCounts).reduce((a, b) => (regionCounts[a] > regionCounts[b] ? a : b));
+
+	return bestRegion;
 };

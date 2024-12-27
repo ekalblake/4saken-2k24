@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { playerService } from "../services/Player/PlayerService";
 import UserItemModel from "../models/Player/PlayerItemModel";
 import useSocket from "../composables/useSocket";
+import { API_URL } from "@/constants/constants";
 
 const socket = useSocket();
 
@@ -16,20 +17,11 @@ export const useUserStore = defineStore("user", {
 	actions: {
 		async fetchUserInfo() {
 			try {
-				const getUser = localStorage.getItem("user");
-
-				if (!getUser) {
-					const response: any = await playerService.getUser();
-
-					if (response.success == false) return;
-					this.setUserInfo(response);
-					this.socketConnect();
-				} else {
-					this.setLocalStorage(getUser);
-					this.socketConnect();
-				}
+				const response = await playerService.getUser();
+				this.setUserInfo(response.data.data);
+				this.socketConnect();
 			} catch (error) {
-				this.setUserInfoNull();
+				this.removeLocalStorage();
 			}
 		},
 		setUserInfo(data: IPlayer) {
@@ -39,19 +31,26 @@ export const useUserStore = defineStore("user", {
 
 			localStorage.setItem("user", parseObject);
 		},
-		setLocalStorage(data: string) {
-			const parseUser: IPlayer = JSON.parse(data);
-			this.userInfo = new UserItemModel(parseUser);
-			localStorage.setItem("user", data);
-		},
 		setUserInfoNull() {
+			this.userInfo = null;
+
+			localStorage.removeItem("user");
+
+			window.open(API_URL + "/auth/logout", "_self");
+		},
+		async checkAuthentication() {
+			if (!this.userInfo) {
+				await this.fetchUserInfo();
+			}
+			return !!this.userInfo;
+		},
+		removeLocalStorage() {
 			this.userInfo = null;
 
 			localStorage.removeItem("user");
 		},
 		socketConnect() {
 			if (socket.connected) return;
-
 			const userInfo = this.userInfo;
 
 			socket.auth = { userInfo };

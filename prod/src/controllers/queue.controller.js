@@ -1,71 +1,111 @@
 import pool from "../database.js";
-import errors, { responseError, responseSuccess } from "../utils/errors.js";
+import errors, { responseError, responseSuccess, sendResponse } from "../utils/errors.js";
 import { HTTP_STATUS } from "../config.js";
-import { joinQueue, dropQueue } from "../query/queue.query.js";
+import {
+	joinQueue,
+	dropQueue,
+	getQueueListByGame,
+	verifyRegion,
+	verifyQueue,
+	getUserInformation,
+} from "../models/queueModel.js";
 
-export const playerJoinQueue = (req, res) => {
+import Logger from "../utils/logger.js";
+import { QUEUE_MESSAGES } from "../utils/constants.js";
+import { getCurrentGameId } from "../models/userModel.js";
+
+export const playerJoinQueue = async (req, res) => {
+	Logger.request(req);
 	const { room } = req.body;
-	joinQueue(room, req.session.userid, req.session.waitTime)
-		.then((response) => {
-			return res.json(responseSuccess(HTTP_STATUS.SUCCESSFUL, response));
-		})
-		.catch((err) => {
-			return res.status(err.status).json(responseError(err.status, {}, err.message));
-		});
+
+	if (!room || isNaN(room)) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_ROOM_NOT_FOUND, null, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_JOIN_ROOM_NOT_FOUND);
+	}
+
+	try {
+		let joinTime = Math.floor(new Date().getTime() / 1000);
+
+		const checkRegions = await verifyRegion(req.session.userid);
+
+		if (!checkRegions.regions || checkRegions.regions.length == 0) {
+			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_NOT_REGION_DETECTED, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_JOIN_NOT_REGION_DETECTED);
+		}
+
+		const checkQueue = await verifyQueue(req.session.userid);
+
+		if (checkQueue) {
+			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_JOINED, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_JOINED);
+		}
+
+		const checkGame = await getCurrentGameId(req.session.userid);
+		
+		if (checkGame) {
+			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_GAME, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_GAME);
+		}
+
+		if (req.session.waitTime !== 0 && joinTime - req.session.waitTime <= 5) {
+			const waitTime = Math.ceil((5 - (joinTime - req.session.waitTime)) / 1000);
+
+			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_WAIT_TIME, null, req);
+			return sendResponse(
+				res,
+				HTTP_STATUS.BAD_REQUEST,
+				null,
+				`${QUEUE_MESSAGES.QUEUE_JOIN_WAIT_TIME}: ${waitTime}`,
+			);
+		}
+
+		await joinQueue(room, req.session.userid);
+
+		const [response] = await getUserInformation(req.session.userid);
+
+		Logger.response(req, res, response);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, response, QUEUE_MESSAGES.QUEUE_JOIN_SUCCESSFUL);
+	} catch (err) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_JOIN_GENERAL_ERROR);
+	}
 };
 
 export const playerDropQueue = (req, res) => {
-	dropQueue(req.session.userid)
-		.then((response) => {
-			req.session.waitTime = Math.floor(new Date().getTime() / 1000);
-			return res.json(responseSuccess(HTTP_STATUS.SUCCESSFUL, response));
-		})
-		.catch((err) => {
-			return res.status(err.status).json(responseError(err.status, {}, err.message));
-		});
+	Logger.request(req);
+
+	try {
+		dropQueue(req.session.userid);
+
+		req.session.waitTime = Math.floor(new Date().getTime() / 1000);
+
+		Logger.response(req, res);
+
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, null, QUEUE_MESSAGES.QUEUE_DROP_SUCCESSFUL);
+	} catch (err) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_DROP_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_DROP_GENERAL_ERROR);
+	}
 };
 
 export const getQueueList = async (req, res) => {
-	const { gametype } = req.params;
-	try {
-		const getQueue = await pool.query(
-			`SELECT
-               users_general.UserID,
-               users_general.SteamID64,
-               l4d2_queue.queueid, 
-               l4d2_queue.isjoined,
-               l4d2_queue.region,
-               l4d2_queue.joined_date,
-               users_web.avatarfull,
-               users_web.personaname,
-               users_web.profileurl,
-               users_web.colorChat,
-               users_web.glowColor,
-               users_web.created_at,
-               users_web.personastate,
-               users_web.timecreated,
-               users_permisions.Rol,
-               users_permisions.IsPremium,
-               users_mmr.Rating,
-               users_mmr.GamesPlayed,
-               users_mmr.LastGame,
-               users_mmr.Wins
-           FROM l4d2_queue
-           JOIN users_general ON l4d2_queue.userid = users_general.UserID
-           JOIN users_web ON users_general.UserID = users_web.WebID
-           JOIN users_mmr ON users_general.UserID = users_mmr.Pug_MMRID
-           JOIN duel_mmr ON users_general.UserID = duel_mmr.Duel_MMRID
-           JOIN users_permisions ON users_general.UserID = users_permisions.PermisionsID
-           WHERE l4d2_queue.region = ?`,
-			[gametype],
-		);
+	Logger.request(req);
 
-		return res.json(getQueue);
+	try {
+		const { gametype } = req.params;
+
+		if (!gametype) {
+			Logger.error(QUEUE_MESSAGES.QUEUE_LIST_ERROR_PARAM, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_JOIN_ROOM_NOT_FOUND);
+		}
+
+		const response = await getQueueListByGame(gametype);
+
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, response, QUEUE_MESSAGES.QUEUE_LIST_SUCCESSFUL);
 	} catch (err) {
-		console.log(err);
-		return res
-			.status(HTTP_STATUS.BAD_REQUEST)
-			.json(errors.success(HTTP_STATUS.NOT_ACCEPTABLE, "Hubo un error, comunicate con un administrador."));
+		Logger.error(QUEUE_MESSAGES.QUEUE_LIST_ERROR_GENERAL, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_LIST_ERROR_GENERAL);
 	}
 };
 
@@ -103,76 +143,19 @@ export const dropQueueAdmin = async (req, res) => {
 	}
 };
 
-export const listQueue = async (req, res) => {
-	try {
-		let queueList = [];
-
-		for (let i = 1; i < 5; i++) {
-			const getQueues = await pool.query(
-				`SELECT users_general.UserID,
-							users_general.SteamID64,
-							l4d2_queue.queueid, 
-							l4d2_queue.isjoined,
-							l4d2_queue.region,
-							l4d2_queue.joined_date,
-							users_web.avatarfull,
-							users_web.personaname,
-							users_web.profileurl,
-							users_web.colorChat,
-							users_web.glowColor,
-							users_web.created_at,
-							users_web.personastate,
-							users_web.timecreated,
-							users_permisions.Rol,
-							users_permisions.IsPremium,
-							users_mmr.Rating,
-							users_mmr.GamesPlayed,
-							users_mmr.LastGame,
-							users_mmr.Wins,
-							duel_mmr.Rating,
-							duel_mmr.GamesPlayed,
-							duel_mmr.LastGame,
-							duel_mmr.Wins
-					FROM users_general
-					INNER JOIN l4d2_queue
-							ON users_general.UserID = l4d2_queue.userid
-					INNER JOIN users_web
-							ON users_general.UserID = users_web.WebID
-					INNER JOIN users_mmr
-							ON users_general.UserID = users_mmr.Pug_MMRID
-					INNER JOIN duel_mmr
-							ON users_general.UserID = duel_mmr.Duel_MMRID
-					INNER JOIN users_permisions
-							ON users_general.UserID = users_permisions.PermisionsID
-					WHERE region = ?`,
-				[i],
-			);
-
-			queueList.push(getQueues);
-		}
-
-		return res.status(HTTP_STATUS.SUCCESSFUL).json(queueList);
-	} catch (err) {
-		console.log(err);
-		return res
-			.status(HTTP_STATUS.BAD_REQUEST)
-			.json(errors.response(HTTP_STATUS.BAD_REQUEST, "Ocurrió un error inesperado al listar las colas."));
-	}
-};
-
 export const currentGames = async (req, res) => {
 	try {
 		const getQueues = await pool.query(`SELECT 
-                                                            teamA, 
-                                                            teamB, 
-                                                            status, 
-                                                            map, 
-                                                            ip,
-                                                            region, 
-                                                            gamestarted 
-                                                       FROM l4d2_queue_game 
-                                                       WHERE l4d2_queue_game.status = 1 
-                                                       ORDER BY queueid DESC`);
+											teamA, 
+											teamB, 
+											status, 
+											map, 
+											ip,
+											region, 
+											gamestarted 
+										FROM l4d2_queue_game 
+										WHERE l4d2_queue_game.status = 1 
+										ORDER BY queueid DESC`);
 
 		return res.json(getQueues);
 	} catch (err) {

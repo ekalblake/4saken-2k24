@@ -1,4 +1,3 @@
-import IQueueGames from "@/interface/Queue/IQueueGames";
 import {QueueGamesItemModel} from "@/models/Queues/QueueGamesItemModel";
 
 export default class QueueGamesModel {

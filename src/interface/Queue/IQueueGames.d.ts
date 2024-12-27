@@ -1,10 +1,12 @@
 declare interface IQueueGames {
-	gamestarted: string | Date;
+	gameid: matchid;
 	ip: string;
 	map: string;
-	region: number;
-	room: string;
+	room: room;
 	status: number;
-	teamA: string;
-	teamB: string;
+	teamA: IPlayer[];
+	teamB: IPlayer[];
+	gamestarted: string | Date;
+	region: string;
+	mmr_average: number;
 }

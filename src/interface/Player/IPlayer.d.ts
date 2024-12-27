@@ -15,6 +15,7 @@ declare interface IPlayer {
 	SteamID64: number;
 	IsPremium: number;
 	created_at: string;
+	regions: string[];
 
 	/* success?: boolean;
 	HTTP_STATUS?: number;

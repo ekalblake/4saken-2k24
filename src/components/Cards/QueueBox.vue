@@ -1,101 +1,87 @@
 <template>
-	<v-row>
-		<v-col>
-			<v-card v-if="!queueList" class="queue_progressbar_center queue_card" color="transparent">
-				<v-progress-circular indeterminate color="primary" />
-			</v-card>
-			<v-card
-				v-else
-				class="queue_card bgc_cards"
-				min-height="620"
-				max-height="620"
-				height="auto"
-				color="transparent"
-			>
-				<v-tabs v-model="tab" align-tabs="center" class="text-fs-primary">
-					<v-tab :value="1"> En linea </v-tab>
-					<v-tab :value="2"> En Cola </v-tab>
-				</v-tabs>
-				<v-tabs-window v-model="tab">
-					<v-tabs-window-item :value="1">
-						<OnlinePlayerList />
-					</v-tabs-window-item>
-					<v-tabs-window-item :value="2">
-						<v-list class="bg-transparent ma-1 overflow-auto">
-							<v-list-item
-								lines="one"
-								v-for="(queue, i) of queueList.getQueue()"
-								class="my-2 bgc-opacity-30 rounded-lg"
-								:key="i"
+	<LoadingComponent v-if="isLoading" min-height="620" max-height="620" />
+	<v-card
+		v-else
+		class="queue_card bgc_cards rounded-lg h-75"
+		min-height="620"
+		max-height="620"
+		height="auto"
+		color="transparent"
+	>
+		<v-tabs v-model="tab" align-tabs="center" class="text-white bgc_cards">
+			<v-tab :value="1"> En linea </v-tab>
+			<v-tab :value="2"> En Cola </v-tab>
+		</v-tabs>
+		<v-tabs-window v-model="tab" class="bgc_cards">
+			<v-tabs-window-item :value="1">
+				<OnlinePlayerList />
+			</v-tabs-window-item>
+			<v-tabs-window-item :value="2">
+				<v-list v-if="queueList" class="bg-transparent ma-1 overflow-auto">
+					<v-list-item
+						lines="one"
+						v-for="(queue, i) of queueList.getQueue()"
+						class="my-2 bgc-opacity-30 rounded-lg"
+						:key="i"
+					>
+						<template v-slot:prepend>
+							<v-tooltip location="top">
+								<template v-slot:activator="{ props }">
+									<span v-bind="props">
+										<v-img
+											width="25"
+											height="25"
+											:alt="queue.getMmrName()"
+											:src="`src/assets/ranked_medals/${queue.getMmrImage()}`"
+										/>
+									</span>
+								</template>
+								<small>
+									{{ queue.getRating() }} -
+									{{ queue.getMmrName() }}
+								</small>
+							</v-tooltip>
+						</template>
+						<template v-slot:default>
+							<v-card-text
+								class="text-center"
+								:style="{
+									color: queue.getColorChat(),
+									textShadow: '0 0 10px ' + queue.getGlowColor(),
+									fontWeight: 'bold',
+								}"
 							>
-								<template v-slot:prepend>
-									<v-tooltip location="top">
-										<template v-slot:activator="{ props }">
-											<span v-bind="props">
-												<v-img
-													width="33px"
-													height="25px"
-													:alt="queue.getMmrName()"
-													:src="`src/assets/ranked_medals/${queue.getMmrImage()}`"
-												/>
-											</span>
-										</template>
-										<small>
-											{{ queue.getRating() }} -
-											{{ queue.getMmrName() }}
-										</small>
-									</v-tooltip>
-								</template>
-								<template v-slot:default>
-									<v-card-text
-										class="text-center"
-										:style="{
-											color: queue.getColorChat(),
-											textShadow: '0 0 10px ' + queue.getGlowColor(),
-											fontWeight: 'bold',
-										}"
-									>
-										{{ queue.getPersonaName().substring(0, 19) }}
-									</v-card-text>
-								</template>
-								<template v-slot:append>
-									<v-avatar
-										tile
-										size="25"
-										:style="'box-shadow: 0px 0px 5px' + queue.getColorChat() + ';'"
-									>
-										<img alt="Profile Pic" height="30" :src="queue.getAvatarFull()" />
-									</v-avatar>
-								</template>
-							</v-list-item>
-						</v-list>
-					</v-tabs-window-item>
-				</v-tabs-window>
-			</v-card>
-		</v-col>
-	</v-row>
-	<MatchFoundDialog
-		v-model:dialog="dialogVisible"
-		@update:model-value="updateDialog"
-		@update:player-ready="playerReady"
-		@update:player-drop="dropQueue"
-	/>
+								{{ queue.getPersonaName().substring(0, 19) }}
+							</v-card-text>
+						</template>
+						<template v-slot:append>
+							<v-avatar tile size="25" :style="'box-shadow: 0px 0px 5px' + queue.getColorChat() + ';'">
+								<img alt="Profile Pic" height="30" :src="queue.getAvatarFull()" />
+							</v-avatar>
+						</template>
+					</v-list-item>
+				</v-list>
+			</v-tabs-window-item>
+		</v-tabs-window>
+	</v-card>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onUnmounted } from "vue";
-import QueueModel from "@/models/Queues/QueueModel";
-
-import { useUserStore } from "@/store/userStore";
-import PlayerItemModel from "@/models/Player/PlayerItemModel";
-
-import useSocket from "@/composables/useSocket";
-import { queuesService } from "@/services/Queues/QueuesService";
-import QueueItemModel from "@/models/Queues/QueueItemModel";
 
 import OnlinePlayerList from "@/components/Cards/OnlinePlayerList.vue";
-import MatchFoundDialog from "@/components/Dialogs/MatchFoundDialog.vue";
+import LoadingComponent from "@/components/Extras/LoadingComponent.vue";
+
+import { useUserStore } from "@/store/userStore";
+
+import useSocket from "@/composables/useSocket";
 import useEmitter from "@/composables/useEmitter";
+
+import QueueModel from "@/models/Queues/QueueModel";
+import PlayerItemModel from "@/models/Player/PlayerItemModel";
+import QueueItemModel from "@/models/Queues/QueueItemModel";
+
+import { queuesService } from "@/services/Queues/QueuesService";
 
 const userStore = useUserStore();
 
@@ -111,26 +97,18 @@ const props = defineProps<{
 
 const dialogVisible = ref<boolean>(false);
 
-const tab = ref<boolean>();
+const tab = ref<number>(1);
 
 const queueList = ref<QueueModel | null>(null);
 
-const dropQueue = async () => {
-	queuesService
-		.dropQueue(userInfo.value?.getUserId(), props.gameType)
-		.then(() => {
-			emitter.emit("queue:verify-queue");
-		})
-		.catch((err) => {
-			console.log(err);
-		});
-};
+const isLoading = ref<boolean>(false);
 
 const getRankedQueue = () => {
+	isLoading.value = true;
 	queuesService
 		.getRankedList(props.gameType)
-		.then((response: IQueue[]) => {
-			queueList.value = new QueueModel(response);
+		.then((response) => {
+			queueList.value = new QueueModel(response.data.data);
 
 			const findUser = queueList.value
 				.getQueue()
@@ -139,50 +117,42 @@ const getRankedQueue = () => {
 			if (findUser) {
 				emitter.emit("queue:verify-queue");
 			}
+
+			isLoading.value = false;
 		})
 		.catch(() => {
-			console.log("ERROR AL LISTAR LA COLA");
+			isLoading.value = false;
 		});
-};
-
-const updateDialog = (status: boolean) => {
-	dialogVisible.value = status;
-};
-
-const playerReady = () => {
-	socketInstance.emit("queue:set-ready");
 };
 
 onMounted(() => {
 	getRankedQueue();
 
-	socketInstance.on("queue:player-joined", () => {
-		getRankedQueue();
+	socketInstance.on("queue:player-joined", (userInfo: IQueue) => {
+		if (!queueList.value) return;
+		queueList.value.pushQueue(userInfo);
 	});
 
-	socketInstance.on("queue:player-dropped", () => {
-		getRankedQueue();
+	socketInstance.on("queue:player-dropped", (userid: number) => {
+		if (!queueList.value) return;
+
+		queueList.value.filterQueue(userid);
 	});
 
 	socketInstance.on("queue:prompt-ready", () => {
 		dialogVisible.value = true;
 	});
+
+	socketInstance.on("queue:player-dropped-single", () => {
+		tab.value = 1;
+	});
 });
 
-onUnmounted(() => {
-	/* clearTimeout(intervalQueue.value); */
-});
+onUnmounted(() => {});
 </script>
 <style scoped>
 .queue_card {
 	overflow: auto;
 	overflow-x: hidden;
-}
-
-.queue_progressbar_center {
-	min-height: 450px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
 }
 </style>

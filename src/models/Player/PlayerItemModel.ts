@@ -17,6 +17,7 @@ export default class PlayerItemModel {
 	readonly SteamID64: number;
 	readonly IsPremium: number;
 	readonly created_at: string;
+	readonly regions: string[];
 
 	constructor(data: IPlayer) {
 		this.UserID = data.UserID;
@@ -35,6 +36,7 @@ export default class PlayerItemModel {
 		this.SteamID64 = data.SteamID64;
 		this.IsPremium = data.IsPremium;
 		this.created_at = data.created_at;
+		this.regions = data.regions;
 	}
 
 	public getUserId(): number {
@@ -49,10 +51,22 @@ export default class PlayerItemModel {
 	public getGlowColor(): string {
 		return this.glowColor;
 	}
+
+	public getColorStyle(): string {
+		return `box-shadow: 0px 0px 5px ${this.colorChat};`;
+	}
+
+	public getBackgroundColor(): Record<string, string> {
+		return {
+			"box-shadow": `0px 0px 5px ${this.colorChat}`,
+		};
+	}
+
 	public getRating(): number | string {
-		return this.getGamesPlayed() < 8
-			? "Sin calibrar"
-			: Math.trunc(this.Rating);
+		if (this.getGamesPlayed() < 8) {
+			return "SIN CALIBRAR";
+		}
+		return Math.trunc(this.Rating);
 	}
 	public getGamesPlayed(): number {
 		return this.GamesPlayed;
@@ -63,6 +77,11 @@ export default class PlayerItemModel {
 	public getWins(): number {
 		return this.Wins;
 	}
+
+	public getRegions(): string[] {
+		return this.regions;
+	}
+
 	public getMmrImage(): string {
 		const ratingToMmrImageMap = {
 			0: QueueNameImages.SCOUT_1,
@@ -77,7 +96,7 @@ export default class PlayerItemModel {
 			4500: QueueNameImages.FORSAKEN,
 		};
 
-		const rating = this.getRating();
+		const rating: any = this.getRating();
 
 		let mmrImage = "";
 
@@ -89,8 +108,11 @@ export default class PlayerItemModel {
 			}
 		}
 
-		return this.getGamesPlayed() < 8 ? "NO_RANKED.png" : mmrImage;
+		return this.getGamesPlayed() < 8
+			? "src/assets/ranked_medals/NO_RANKED.png"
+			: `src/assets/ranked_medals/${mmrImage}`;
 	}
+
 	public getMmrName(): string {
 		const ratingToMmrImageMap = {
 			0: QueueNames.SCOUT_1,
@@ -105,7 +127,7 @@ export default class PlayerItemModel {
 			4500: QueueNames.FORSAKEN,
 		};
 
-		const rating = this.getRating();
+		const rating: any = this.getRating();
 
 		let mmrImage = "";
 
