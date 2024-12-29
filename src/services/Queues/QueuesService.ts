@@ -31,6 +31,38 @@ export class QueuesService {
 		});
 	}
 
+	public joinPartyQueue(
+		room: number,
+		party_id: number,
+	): Promise<AxiosResponse<IApiResponse<{ members_id: number[] }>>> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await axios.post(`/queue/party/join`, {
+					room,
+					party_id,
+				});
+
+				resolve(response);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public dropPartyQueue(party_id: number): Promise<AxiosResponse<IApiResponse<{ members_id: number[] }>>> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await axios.post(`/queue/party/drop`, {
+					party_id,
+				});
+
+				resolve(response);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	public readyQueue(userid: number | undefined, gameType: number): void {
 		socketInstance.emit("queue:ready-queue", {
 			userid,

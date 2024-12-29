@@ -20,11 +20,7 @@ import NotificactionComponent from "@/components/Extras/NotificactionComponent.v
 
 import { useRoute } from "vue-router";
 
-import useSocket from "@/composables/useSocket";
-
 const route = useRoute();
-
-const socketInstance = useSocket();
 </script>
 <style>
 @import "./style.css";

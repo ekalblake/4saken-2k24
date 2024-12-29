@@ -42,6 +42,7 @@
 					v-if="partyInfo.getParty().getLeaderId() == userInfo?.getUserId()"
 					@click="deleteParty(partyInfo.getParty().getPartyId())"
 					v-bind="props"
+					:disabled="isJoined"
 					icon="mdi-delete"
 					class="bg-error rounded-lg"
 				>
@@ -50,6 +51,7 @@
 					v-else
 					@click="dropParty(partyInfo.getParty().getPartyId())"
 					v-bind="props"
+					:disabled="isJoined"
 					icon="mdi-delete"
 					class="bg-error rounded-lg"
 				>
@@ -134,24 +136,24 @@
 				</v-btn>
 			</template>
 			<template v-else>
-				<template v-if="partyInfo.getParty().getLeaderId() == userInfo?.getUserId()">
-					<v-btn
-						v-if="!isJoined"
-						class="bg-fs-primary rounded-lg text-white text-decoration-none pa-4 align-content-center"
-						:loading="isDisabled"
-						@click="joinQueueParty"
-					>
-						ENTRAR A LA COLA
-					</v-btn>
-					<v-btn
-						v-else
-						class="bg-fs-secondary rounded-lg text-white text-decoration-none pa-4 align-content-center"
-						:disabled="justJoined"
-						@click="dropQueue"
-					>
-						{{ counter }}
-					</v-btn>
-				</template>
+				{{ partyInfo.getParty().getLeaderId() }} - {{ userInfo?.getUserId() }}
+				<v-btn
+					:disabled="partyInfo.getParty().getLeaderId() != userInfo?.getUserId()"
+					v-if="!isJoined"
+					class="bg-fs-primary rounded-lg text-white text-decoration-none pa-4 align-content-center"
+					:loading="isDisabled"
+					@click="joinQueueParty"
+				>
+					ENTRAR A LA COLA
+				</v-btn>
+				<v-btn
+					v-else
+					:disabled="partyInfo.getParty().getLeaderId() != userInfo?.getUserId()"
+					class="bg-fs-secondary rounded-lg text-white text-decoration-none pa-4 align-content-center"
+					@click="dropQueueParty"
+				>
+					{{ counter }}
+				</v-btn>
 			</template>
 		</v-card-actions>
 	</v-card>
@@ -216,7 +218,38 @@ const joinQueue = () => {
 };
 
 const joinQueueParty = () => {
-	console.log("JOIN QUEUE PARTY");
+	if (!partyInfo.value) return;
+	queuesService
+		.joinPartyQueue(props.gameType, partyInfo.value.getParty().getPartyId())
+		.then((response) => {
+			socket.emit("queue:party-join-queue", {
+				room: props.gameType,
+				members_id: response.data.data.members_id,
+			});
+
+			emitter.emit("alert", response.data);
+		})
+		.catch((err) => {
+			emitter.emit("alert", err.response.data);
+		});
+};
+
+const dropQueueParty = () => {
+	if (!partyInfo.value) return;
+	queuesService
+		.dropPartyQueue(partyInfo.value.getParty().getPartyId())
+		.then((response) => {
+			console.log(response);
+			socket.emit("queue:party-drop-queue", {
+				room: props.gameType,
+				members_id: response.data.data.members_id,
+			});
+
+			emitter.emit("alert", response.data);
+		})
+		.catch((err) => {
+			emitter.emit("alert", err.response.data);
+		});
 };
 
 const dropQueue = () => {
@@ -247,7 +280,9 @@ const dropQueue = () => {
 const startCounter = () => {
 	clearInterval(intervalId.value);
 	setTimeout(() => {
-		justJoined.value = false;
+		if (justJoined.value == true) {
+			justJoined.value = false;
+		}
 	}, 3000);
 
 	let minutes = 0;
@@ -370,6 +405,7 @@ const dropParty = (party_id: number) => {
 		.dropPartyMember(party_id)
 		.then((response) => {
 			partyInfo.value = null;
+			isJoined.value = false;
 
 			response.data.data.forEach((memberId: number) => {
 				socket.emit("queue:drop-party-member", memberId);
@@ -394,6 +430,12 @@ onMounted(() => {
 		isJoined.value = false;
 		clearInterval(intervalId.value);
 		counter.value = "00:00";
+	});
+
+	socket.on("queue:party-join-single", () => {
+		isJoined.value = true;
+		clearInterval(intervalId.value);
+		startCounter();
 	});
 
 	socket.on("queue:drop-party-member", () => {
