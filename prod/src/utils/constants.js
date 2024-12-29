@@ -39,6 +39,13 @@ export const QUEUE_MESSAGES = {
 	QUEUE_LIST_SUCCESSFUL: "Lista de usuarios",
 	QUEUE_DROP_SUCCESSFUL: "Se salio de la cola correctamente",
 	QUEUE_DROP_GENERAL_ERROR: "Hubo un error general al salir de la cola",
+	QUEUE_PARTY_JOIN_SUCCESSFUL: "Están en la cola.",
+	QUEUE_PARTY_JOIN_GENERAL_ERROR: "Ha ocurrido un error general al unirse a la cola en grupo.",
+	QUEUE_PARTY_JOIN_NOT_REGION: "El siguiente usuario no ha seleccionado una región",
+	QUEUE_PARTY_JOIN_GAME_PLAYING: "El siguiente usuario se encuentra en una partida",
+	QUEUE_PARTY_ERROR_FOUND:"Se encontró un error con algún miembro de la party",
+	QUEUE_PARTY_DROP_SUCCESSFUL: "El party se salió de la cola",
+	QUEUE_PARTY_DROP_GENERAL_ERROR: "Hubo un error al salir de la cola como party"
 };
 
 export const SOCKET_MESSAGES = {

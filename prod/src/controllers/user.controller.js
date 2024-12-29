@@ -269,7 +269,7 @@ export const checkCurrentGame = async (req, res) => {
 		let gameObj = null;
 
 		if (gameId) {
-			const response = await getCurrentGame(gameId);
+			const response = await getCurrentGame(gameId.game_id);
 			gameObj = {
 				gameid: response.gameid,
 				teamA: JSON.parse(response.teamA),

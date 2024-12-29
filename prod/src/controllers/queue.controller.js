@@ -8,11 +8,12 @@ import {
 	verifyRegion,
 	verifyQueue,
 	getUserInformation,
+	getUserInformationGroup,
 } from "../models/queueModel.js";
 
 import Logger from "../utils/logger.js";
 import { QUEUE_MESSAGES } from "../utils/constants.js";
-import { getCurrentGameId } from "../models/userModel.js";
+import { getCurrentGameId, verifyPartyMembers } from "../models/userModel.js";
 
 export const playerJoinQueue = async (req, res) => {
 	Logger.request(req);
@@ -23,9 +24,9 @@ export const playerJoinQueue = async (req, res) => {
 		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_JOIN_ROOM_NOT_FOUND);
 	}
 
-	try {
-		let joinTime = Math.floor(new Date().getTime() / 1000);
+	let joinTime = Math.floor(new Date().getTime() / 1000);
 
+	try {
 		const checkRegions = await verifyRegion(req.session.userid);
 
 		if (!checkRegions.regions || checkRegions.regions.length == 0) {
@@ -41,7 +42,7 @@ export const playerJoinQueue = async (req, res) => {
 		}
 
 		const checkGame = await getCurrentGameId(req.session.userid);
-		
+
 		if (checkGame) {
 			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_GAME, null, req);
 			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_JOIN_ALREADY_GAME);
@@ -71,11 +72,11 @@ export const playerJoinQueue = async (req, res) => {
 	}
 };
 
-export const playerDropQueue = (req, res) => {
+export const playerDropQueue = async (req, res) => {
 	Logger.request(req);
 
 	try {
-		dropQueue(req.session.userid);
+		await dropQueue(req.session.userid);
 
 		req.session.waitTime = Math.floor(new Date().getTime() / 1000);
 
@@ -85,6 +86,94 @@ export const playerDropQueue = (req, res) => {
 	} catch (err) {
 		Logger.error(QUEUE_MESSAGES.QUEUE_DROP_GENERAL_ERROR, err, req);
 		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_DROP_GENERAL_ERROR);
+	}
+};
+
+export const partyJoinQueue = async (req, res) => {
+	Logger.request(req);
+
+	const { room, party_id } = req.body;
+
+	try {
+		const getPartyMembersId = await verifyPartyMembers(party_id);
+
+		let joinTime = Math.floor(new Date().getTime() / 1000);
+
+		if (req.session.waitTime !== 0 && joinTime - req.session.waitTime <= 5) {
+			const waitTime = Math.ceil((5 - (joinTime - req.session.waitTime)) / 1000);
+
+			Logger.error(QUEUE_MESSAGES.QUEUE_JOIN_WAIT_TIME, null, req);
+			return sendResponse(
+				res,
+				HTTP_STATUS.BAD_REQUEST,
+				null,
+				`${QUEUE_MESSAGES.QUEUE_JOIN_WAIT_TIME}: ${waitTime}`,
+			);
+		}
+
+		for (const member of getPartyMembersId) {
+			try {
+				const checkRegions = await verifyRegion(member);
+
+				if (!checkRegions.regions || checkRegions.regions.length === 0) {
+					const error = new Error(
+						`${QUEUE_MESSAGES.QUEUE_PARTY_JOIN_NOT_REGION}: ${checkRegions.personaname} `,
+					);
+					throw error;
+				}
+
+				const checkGame = await getCurrentGameId(member);
+
+				if (checkGame) {
+					const error = new Error(
+						`${QUEUE_MESSAGES.QUEUE_PARTY_JOIN_GAME_PLAYING}: ${checkGame.personaname}`,
+					);
+					throw error;
+				}
+			} catch (error) {
+				Logger.error(QUEUE_MESSAGES.QUEUE_PARTY_JOIN_GAME_PLAYING, error, req);
+				return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, error.message);
+			}
+		}
+		const promises = getPartyMembersId.map((member) => joinQueue(room, member));
+
+		await Promise.all(promises);
+
+		Logger.response(req, res);
+		return sendResponse(
+			res,
+			HTTP_STATUS.SUCCESSFUL,
+			{ members_id: getPartyMembersId },
+			QUEUE_MESSAGES.QUEUE_PARTY_JOIN_SUCCESSFUL,
+		);
+	} catch (err) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_PARTY_JOIN_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_PARTY_JOIN_GENERAL_ERROR);
+	}
+};
+
+export const partyDropQueue = async (req, res) => {
+	Logger.request(req);
+
+	const { party_id } = req.body;
+	try {
+		const getPartyMembersId = await verifyPartyMembers(party_id);
+
+		for (const member of getPartyMembersId) {
+			await dropQueue(member);
+		}
+
+		req.session.waitTime = Math.floor(new Date().getTime() / 1000);
+
+		const response = {
+			members_id: getPartyMembersId,
+		};
+
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, response, QUEUE_MESSAGES.QUEUE_PARTY_DROP_SUCCESSFUL);
+	} catch (err) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_PARTY_DROP_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, QUEUE_MESSAGES.QUEUE_PARTY_DROP_GENERAL_ERROR);
 	}
 };
 
@@ -165,6 +254,7 @@ export const currentGames = async (req, res) => {
 			.json(errors.response(HTTP_STATUS.BAD_REQUEST, "Ocurrió un error inesperado al listar las colas."));
 	}
 };
+
 export const matchStatus = async (req, res) => {
 	try {
 		if (!req.query.ip || !req.query.port)

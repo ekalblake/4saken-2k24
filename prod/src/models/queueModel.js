@@ -1,12 +1,11 @@
-import { HTTP_STATUS } from "../config.js";
 import pool from "../database.js";
-import { responseError, sqlResponse } from "../utils/errors.js";
 
 export const verifyRegion = async (UserID) => {
 	const [checkRegions] = await pool.query(
 		`
 			SELECT
-				regions
+				regions,
+				personaname
 			FROM
 				users_web
 			WHERE
@@ -33,7 +32,6 @@ export const verifyQueue = async (UserID) => {
 };
 
 export const joinQueue = async (room, UserID) => {
-	//TODO: Quitar luego
 	let unixTimestamp = Math.floor(Date.now() / 1000);
 
 	await pool.query(
@@ -99,7 +97,7 @@ export const getQueuedUsers = async () => {
 	);
 
 	const playerList = players.map((player) => {
-		let selectedRegions = player.regions;
+		let selectedRegions = player.regions || ["NA"];
 		return {
 			UserID: player.userid,
 			SteamID64: player.SteamID64,
@@ -228,6 +226,59 @@ export const getUserInformation = async (userId) => {
 	return response;
 };
 
+export const getUserInformationGroup = async (userList) => {
+	const response = await pool.query(
+		`
+			SELECT
+				users_general.UserID,
+				users_general.SteamID64,
+				l4d2_queue.queueid, 
+				l4d2_queue.isjoined,
+				l4d2_queue.room,
+				l4d2_queue.joined_date,
+				users_web.avatarfull,
+				users_web.personaname,
+				users_web.profileurl,
+				users_web.timecreated,
+				users_web.personastate,
+				users_web.colorChat,
+				users_web.glowColor,
+				users_web.created_at,
+				users_web.regions,
+				users_web.party_id,
+				users_permisions.Rol,
+				users_permisions.IsPremium,
+				users_mmr.Rating,
+				users_mmr.GamesPlayed,
+				users_mmr.LastGame,
+				users_mmr.Wins
+			FROM users_general
+				INNER JOIN l4d2_queue
+			ON 
+				users_general.UserID = l4d2_queue.userid
+			INNER JOIN 
+				users_web
+			ON 
+				users_general.UserID = users_web.WebID
+			INNER JOIN 
+				users_mmr
+			ON 
+				users_general.UserID = users_mmr.Pug_MMRID
+			INNER JOIN 
+				duel_mmr
+			ON 
+				users_general.UserID = duel_mmr.Duel_MMRID
+			INNER 
+				JOIN users_permisions
+			ON 
+				users_general.UserID = users_permisions.PermisionsID
+			WHERE 
+				users_web.WebID IN (?)`,
+		[userList],
+	);
+	return response;
+};
+
 export const insertNewgame = async (game) => {
 	const insertObj = {
 		gameid: game.gameid,
@@ -241,7 +292,7 @@ export const insertNewgame = async (game) => {
 		mmr_average: game.mmr_average,
 	};
 
-	const getId = await pool.query(
+	await pool.query(
 		`
 		INSERT INTO 
 			l4d2_queue_game 

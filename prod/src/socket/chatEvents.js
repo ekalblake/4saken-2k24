@@ -1,7 +1,7 @@
 import { HTTP_STATUS } from "../config.js";
 import { sendMessage } from "../models/chatModel.js";
 
-export const chatEvents = (socket, io, userInfo) => {
+export const chatEvents = (socket, io) => {
 	const messageCounts = {};
 
 	socket.on("chat:handle-send-message", ({ message, room }) => {
@@ -20,7 +20,6 @@ export const chatEvents = (socket, io, userInfo) => {
 		const elapsedTime = currentTime - lastTime;
 
 		if (count >= 1 && elapsedTime < 1000) {
-			socket.to(room).emit("chat:user-alert", { message: "Estás enviando muchos mensajes!" });
 			return;
 		}
 

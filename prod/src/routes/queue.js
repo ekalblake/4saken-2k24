@@ -14,6 +14,8 @@ import {
 	getMatchInfo,
 	matchStatusV2,
 	getQueueList,
+	partyJoinQueue,
+	partyDropQueue,
 } from "../controllers/queue.controller.js";
 import { isBanned } from "../middleware/verifybanned.middleware.js";
 import { isAdmin } from "../middleware/verifyadmin.middleware.js";
@@ -24,6 +26,8 @@ router
 	.post("/player/join", isAuthorized, /* isBanned, */ playerJoinQueue)
 	.delete("/player/drop", isAuthorized, playerDropQueue)
 	.delete("/drop/admin/:userid/:region", isAuthorized, isAdmin, dropQueueAdmin)
+	.post("/party/join", isAuthorized, partyJoinQueue)
+	.post("/party/drop", isAuthorized, partyDropQueue)
 	.get("/checkqueue", isAuthorized, async (req, res) => {
 		const steamid = steam().convertToText(req.session.passport.user.id);
 

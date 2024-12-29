@@ -416,7 +416,8 @@ export const getCurrentGameId = async (userid) => {
 	const [currentGame] = await pool.query(
 		`
 		SELECT
-			game_id
+			game_id,
+			personaname
 		FROM
 			users_web
 		WHERE
@@ -425,7 +426,11 @@ export const getCurrentGameId = async (userid) => {
 		[userid],
 	);
 
-	return currentGame.game_id;
+	if (!currentGame.game_id) {
+		return null;
+	}
+
+	return currentGame;
 };
 
 export const getCurrentGame = async (gameid) => {
