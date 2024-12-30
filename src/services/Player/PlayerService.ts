@@ -94,7 +94,7 @@ export class PlayerService {
 		});
 	}
 
-	public getCurrentGame(): Promise<AxiosResponse<IApiResponse<IQueueGames>>> {
+	public getCurrentGame(): Promise<AxiosResponse<IApiResponse<IQueueGame>>> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const response = await axios.get(`/user/get/current-game`);
@@ -121,13 +121,12 @@ export class PlayerService {
 		});
 	}
 
-	public async saveConfiguration(colorChat: any, glowColor: any, userid: any) {
-		const { data } = await axios.put(`/user/config`, {
+	public async saveConfiguration(colorChat: string | undefined, glowColor: string | undefined) {
+		const response = await axios.put(`/user/config`, {
 			colorChat: colorChat,
 			glowColor: glowColor,
-			userid: userid,
 		});
-		return data;
+		return response;
 	}
 }
 

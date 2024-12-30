@@ -24,6 +24,9 @@ export const USER_MESSAGES = {
 	USER_CURRENT_GAME_SUCCESS: "Juego encontrado correctamente",
 	USER_ONLINE_LIST_SUCCESS: "Usuarios en linea encontrados",
 	USER_ONLINE_LIST_GENERAL_ERROR: "Error general al listar los usuarios",
+	USER_CONFIG_SUCCESSFUL:"Se actualizó la configuración del usuario",
+	USER_CONFIG_NOT_UPDATED:"No se pudo actualizar la configuración",
+	USER_CONFIG_GENERAL_ERROR:"Hubo un error general al actualizar la configuración"
 };
 
 export const QUEUE_MESSAGES = {
@@ -45,7 +48,10 @@ export const QUEUE_MESSAGES = {
 	QUEUE_PARTY_JOIN_GAME_PLAYING: "El siguiente usuario se encuentra en una partida",
 	QUEUE_PARTY_ERROR_FOUND:"Se encontró un error con algún miembro de la party",
 	QUEUE_PARTY_DROP_SUCCESSFUL: "El party se salió de la cola",
-	QUEUE_PARTY_DROP_GENERAL_ERROR: "Hubo un error al salir de la cola como party"
+	QUEUE_PARTY_DROP_GENERAL_ERROR: "Hubo un error al salir de la cola como party",
+	QUEUE_GAMES_INVALID_PARAM: "Parámetros incorrectos, falta room",
+	QUEUE_GAMES_SUCCESSFULL: "Lista de juegos activos",
+	QUEUE_GAMES_GENERAL_ERROR:"Hubo un error general al listar los juegos"
 };
 
 export const SOCKET_MESSAGES = {

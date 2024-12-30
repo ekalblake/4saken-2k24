@@ -1,29 +1,7 @@
 import _ from "lodash";
-import { queryGetIP } from "../models/generalModel.js";
-import Gamedig from "gamedig";
-
+import { getActiveServers } from "../models/generalModel.js";
+import { serverAvailabilityService } from "../services/extraServices.js";
 const helpers = {};
-
-helpers.getTeams = (array, ip) => {
-	let teams = _.shuffle(array);
-
-	const middleIndex = Math.ceil(teams.length / 2);
-
-	const firstHalf = teams.splice(0, middleIndex);
-
-	const secondHalf = teams.splice(-middleIndex);
-
-	const map = helpers.randomMaps();
-
-	const newObject = {
-		teamA: firstHalf,
-		teamB: secondHalf,
-		map: map,
-		ip: ip,
-	};
-
-	return newObject;
-};
 
 helpers.unixToDate = (date) => {
 	const getDate = new Date(date * 1000).toLocaleString();
@@ -34,7 +12,7 @@ helpers.currentDate = () => {
 	return Math.floor(new Date().getTime() / 1000.0);
 };
 
-helpers.randomMaps = () => {
+export const getRandomMaps = () => {
 	let map = [
 		"c1m1_hotel",
 		"c2m1_highway",
@@ -52,47 +30,27 @@ helpers.randomMaps = () => {
 	return _.sample(map);
 };
 
-export const getRandomIP = async () => {
-	const getServers = await queryGetIP();
+export const reserveIp = async () => {
+	const getServers = await getActiveServers();
 
-	const servers = getServers.map((server) => {
-		return {
-			ip: server.ip,
-			port: server.port,
-		};
-	});
-	let checkServer = [];
+	let checkActiveServer = null;
 
-	for (let server of servers) {
+	for (let server of getServers) {
 		try {
-			const data = await Gamedig.query({
-				type: "left4dead2",
-				host: server.ip,
-				port: server.port,
-			});
-
-			const nombreJugador = data.players.map((l) => {
-				return l.name;
-			});
-			if (data.raw.numplayers == 0)
-				checkServer.push({
+			const data = await serverAvailabilityService(server.ip, server.port);
+			if (data.raw.numplayers == 0) {
+				checkActiveServer = {
 					name: data.name,
-					map: data.map,
-					numplayers: data.raw.numplayers,
-					players: nombreJugador,
-					maxplayers: data.maxplayers,
 					ip: data.connect,
-					ping: data.ping,
-				});
-		} catch {
-			console.log("No se ha podido conectar al servidor: " + server.ip + ":" + server.port);
+				};
+				break;
+			}
+		} catch (err) {
+			console.log(`No se ha encontrado el servidor: ${server.ip} - ${err.message}`);
 		}
 	}
 
-	let ip = checkServer.map((server) => {
-		return server.ip;
-	});
-	return _.sample(ip);
+	return checkActiveServer;
 };
 
 //https://codingnconcepts.com/javascript/how-to-divide-array-in-equal-parts-in-javascript/
@@ -105,6 +63,12 @@ export const getRandomCode = () => {
 		code += characters[randomIndex];
 	}
 	return code;
+};
+
+export const generateMatchId = () => {
+	const timestamp = Math.floor(Date.now() / 1000);
+	const randomNum = Math.floor(Math.random() * 10000);
+	return `L4D2MATCH-${timestamp}-${randomNum}`;
 };
 
 export default helpers;

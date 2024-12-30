@@ -9,6 +9,7 @@ import {
 	verifyQueue,
 	getUserInformation,
 	getUserInformationGroup,
+	getCurrentGamesActive,
 } from "../models/queueModel.js";
 
 import Logger from "../utils/logger.js";
@@ -198,6 +199,28 @@ export const getQueueList = async (req, res) => {
 	}
 };
 
+export const currentGames = async (req, res) => {
+	Logger.request(req);
+
+	const { room } = req.query;
+
+	if (!room) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_LIST_ERROR_PARAM, null, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_JOIN_ROOM_NOT_FOUND);
+	}
+
+	try {
+		const getActiveGames = await getCurrentGamesActive(room);
+
+		Logger.response(req, res);
+
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, getActiveGames, QUEUE_MESSAGES.QUEUE_GAMES_SUCCESSFULL);
+	} catch (err) {
+		Logger.error(QUEUE_MESSAGES.QUEUE_GAMES_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, QUEUE_MESSAGES.QUEUE_GAMES_GENERAL_ERROR);
+	}
+};
+
 export const dropQueueAdmin = async (req, res) => {
 	try {
 		const { userid, region } = req.params;
@@ -229,29 +252,6 @@ export const dropQueueAdmin = async (req, res) => {
 		return res
 			.status(HTTP_STATUS.BAD_REQUEST)
 			.json(errors.success(HTTP_STATUS.NOT_ACCEPTABLE, "Hubo un error, comunicate con un administrador."));
-	}
-};
-
-export const currentGames = async (req, res) => {
-	try {
-		const getQueues = await pool.query(`SELECT 
-											teamA, 
-											teamB, 
-											status, 
-											map, 
-											ip,
-											region, 
-											gamestarted 
-										FROM l4d2_queue_game 
-										WHERE l4d2_queue_game.status = 1 
-										ORDER BY queueid DESC`);
-
-		return res.json(getQueues);
-	} catch (err) {
-		console.log(err);
-		return res
-			.status(HTTP_STATUS.BAD_REQUEST)
-			.json(errors.response(HTTP_STATUS.BAD_REQUEST, "Ocurrió un error inesperado al listar las colas."));
 	}
 };
 

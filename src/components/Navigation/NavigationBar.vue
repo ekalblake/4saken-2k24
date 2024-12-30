@@ -23,15 +23,7 @@
 		<template v-else>
 			<v-menu :close-on-content-click="false" location="left">
 				<template v-slot:activator="{ props }">
-					<v-avatar
-						:style="{
-							color: userInfo.getColorChat(),
-							textShadow: '0 0 10px ' + userInfo.getGlowColor(),
-							fontWeight: 'bold',
-						}"
-						class="cursor-pointer mx-3"
-						v-bind="props"
-					>
+					<v-avatar :style="userInfo.getBoxShadow()" class="cursor-pointer mx-3" v-bind="props">
 						<v-img alt="Profile Pic" :src="userInfo.getAvatarFull()" />
 					</v-avatar>
 				</template>
@@ -56,7 +48,7 @@
 						<template v-slot:prepend>
 							<v-icon>mdi-cog</v-icon>
 						</template>
-						<RouterLink class="text-decoration-none text-white" to="configuration">
+						<RouterLink class="text-decoration-none text-white" to="/configuration">
 							Configuración
 						</RouterLink>
 					</v-list-item>
@@ -81,14 +73,7 @@
 		<v-list>
 			<v-list-item v-if="userInfo">
 				<template v-slot:prepend>
-					<v-avatar
-						:style="{
-							color: userInfo.getColorChat(),
-							textShadow: '0 0 10px ' + userInfo.getGlowColor(),
-							fontWeight: 'bold',
-						}"
-						class="cursor-pointer mx-3"
-					>
+					<v-avatar :style="userInfo.getBoxShadow()" class="cursor-pointer mx-3">
 						<v-img :src="userInfo.getAvatarFull()" />
 					</v-avatar>
 				</template>

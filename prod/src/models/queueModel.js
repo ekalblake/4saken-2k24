@@ -314,3 +314,32 @@ export const updateCurrentGame = async (gameid, userid) => {
 		[gameid, userid],
 	);
 };
+
+export const getCurrentGamesActive = async (room) => {
+	const response = await pool.query(
+		`
+		SELECT 
+			teamA, 
+			teamB, 
+			status, 
+			map, 
+			ip,
+			region,
+			mmr_average,
+			gamestarted 
+		FROM
+			l4d2_queue_game 
+		WHERE
+			status = 1 
+		AND
+			room = ?
+		ORDER BY queueid DESC`,
+		[room],
+	);
+
+	return response.map((row) => ({
+		...row,
+		teamA: JSON.parse(row.teamA),
+		teamB: JSON.parse(row.teamB),
+	}));
+};

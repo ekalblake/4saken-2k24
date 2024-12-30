@@ -1,3 +1,4 @@
+import { reserveServer } from "../models/generalModel.js";
 import {
 	dropQueue,
 	getQueuedUsers,
@@ -5,16 +6,95 @@ import {
 	insertNewgame,
 	updateCurrentGame,
 } from "../models/queueModel.js";
+import { generateMatchId, getRandomMaps, reserveIp } from "../utils/helpers.js";
 
 let queueArray = [];
 
 const MMR_THRESHOLD = 500;
 
-getQueuedUsers().then((response) => {
+getQueuedUsers().then(async (response) => {
 	queueArray = response;
 });
 
+let ioInstance;
+
+setInterval(async () => {
+	if (queueArray.length > 0) {
+		const firstPlayer = queueArray[0];
+		const potentialMatches = findPotentialMatches(firstPlayer);
+		if (potentialMatches.length >= 8) {
+			const bestRegion = findBestRegion(potentialMatches);
+
+			const matchesInBestRegion = potentialMatches.filter((player) => player.regions.includes(bestRegion));
+
+			if (matchesInBestRegion.length >= 8) {
+				const sortedPlayers = matchesInBestRegion.sort((a, b) => b.joined_date - a.joined_date);
+				const last8Players = sortedPlayers.slice(0, 8);
+				await startMatch(last8Players, ioInstance, firstPlayer.room, bestRegion);
+			}
+		}
+	}
+}, 30000);
+
+const startMatch = async (players, io, room, region) => {
+	try {
+		const gameid = generateMatchId();
+
+		const teams = assignTeamsByMMR(players);
+
+		const totalMMR = players.reduce((sum, player) => sum + player.Rating, 0);
+		const mmr_average = Math.round(totalMMR / players.length);
+
+		const getRandomIP = await reserveIp();
+
+		if (!getRandomIP) {
+			players.forEach(async (player) => {
+				io.to(`user_${player.UserID}`).emit("alert", {
+					message: "No se encontró una IP disponible, se está reintentando...",
+					success: false,
+				});
+			});
+			return;
+		}
+
+		const objReturn = {
+			gameid: gameid,
+			teamA: teams.teamA,
+			teamB: teams.teamB,
+			ip: getRandomIP.ip,
+			map: getRandomMaps(),
+			gamestarted: new Date(),
+			room,
+			status: 1,
+			region,
+			mmr_average,
+		};
+
+		players.forEach(async (player) => {
+			const index = queueArray.findIndex((p) => p.UserID === player.UserID);
+			if (index !== -1) queueArray.splice(index, 1);
+
+			await updateCurrentGame(gameid, player.UserID);
+
+			await dropQueue(player.UserID);
+
+			io.to(`user_${player.UserID}`).emit("queue:player-dropped-single");
+			io.to(`user_${player.UserID}`).emit("queue:match-start", objReturn);
+			io.to(room).emit("queue:player-dropped", player.UserID);
+		});
+
+		await insertNewgame(objReturn);
+
+		await reserveServer(getRandomIP.ip, "RESERVED");
+
+		console.log(`Match started with players: ${players.map((p) => p.personaname).join(", ")}`);
+	} catch (err) {
+		console.log(err);
+	}
+};
+
 export const queueEvents = (socket, io, userInfo) => {
+	ioInstance = io;
 	socket.on("queue:join-queue", async ({ room, userInfo }) => {
 		const selectedRegions = userInfo.regions || ["NA"];
 
@@ -129,83 +209,15 @@ export const queueEvents = (socket, io, userInfo) => {
 	});
 
 	socket.on("disconnect", async () => {
-		const index = queueArray.findIndex((player) => player.UserID === userInfo.UserID);
+		/* const index = queueArray.findIndex((player) => player.UserID === userInfo.UserID);
 		if (index !== -1) {
 			queueArray.splice(index, 1);
 		}
 
 		io.emit("queue:player-dropped", userInfo.UserID);
-
+ */
 		await dropQueue(userInfo.UserID);
 	});
-
-	setInterval(() => {
-		queueArray.forEach(async (player) => {
-			const potentialMatches = findPotentialMatches(player);
-
-			if (potentialMatches.length >= 8) {
-				const bestRegion = findBestRegion(potentialMatches);
-
-				const matchesInBestRegion = potentialMatches.filter((player) => player.regions.includes(bestRegion));
-
-				if (matchesInBestRegion.length >= 8) {
-					const sortedPlayers = matchesInBestRegion.sort((a, b) => b.joined_date - a.joined_date);
-					const last8Players = sortedPlayers.slice(0, 8);
-
-					await startMatch(last8Players, io, player.room, bestRegion);
-				}
-			}
-		});
-	}, 60000);
-
-	const startMatch = async (players, io, room, region) => {
-		try {
-			const gameid = generateMatchId();
-
-			const teams = assignTeamsByMMR(players);
-
-			const totalMMR = players.reduce((sum, player) => sum + player.Rating, 0);
-			const mmr_average = Math.round(totalMMR / players.length);
-
-			const objReturn = {
-				gameid: gameid,
-				teamA: teams.teamA,
-				teamB: teams.teamB,
-				ip: "192.168.1.1",
-				map: "The Parish",
-				gamestarted: new Date(),
-				room,
-				status: 1,
-				region,
-				mmr_average,
-			};
-
-			players.forEach((player) => {
-				const index = queueArray.findIndex((p) => p.UserID === player.UserID);
-				if (index !== -1) queueArray.splice(index, 1);
-
-				updateCurrentGame(gameid, player.UserID);
-
-				dropQueue(player.UserID);
-
-				io.to(`user_${player.UserID}`).emit("queue:player-dropped-single");
-				io.to(`user_${player.UserID}`).emit("queue:match-start", objReturn);
-				io.to(room).emit("queue:player-dropped", player.UserID);
-			});
-
-			await insertNewgame(objReturn);
-
-			console.log(`Match started with players: ${players.map((p) => p.personaname).join(", ")}`);
-		} catch (err) {
-			console.log(err);
-		}
-	};
-};
-
-const generateMatchId = () => {
-	const timestamp = Math.floor(Date.now() / 1000);
-	const randomNum = Math.floor(Math.random() * 10000);
-	return `L4D2MATCH-${timestamp}-${randomNum}`;
 };
 
 const findPotentialMatches = (player) => {

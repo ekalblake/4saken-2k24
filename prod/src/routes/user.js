@@ -4,7 +4,7 @@ import {
 	fetchUser,
 	listUser,
 	onlineListUser,
-	configUser,
+	userConfiguration,
 	failedUser,
 	getUserMmr,
 	getConnectionStatus,
@@ -30,7 +30,7 @@ router
 	.delete("/party/drop-party-room/:party_id", deleteParty)
 	.get("/get/users", listUser)
 	.get("/get/online-users", onlineListUser)
-	.put("/config", configUser)
+	.put("/config", userConfiguration)
 	.get("/get/mmr", getUserMmr)
 	.get("/online-status", getConnectionStatus)
 	.get("/get/current-game", checkCurrentGame);

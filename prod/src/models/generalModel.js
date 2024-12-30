@@ -1,8 +1,39 @@
 import pool from "../database.js";
-import { sqlResponse } from "../utils/errors.js";
 
-export const queryGetIP = async () =>
-	await pool.query("SELECT *FROM 4saken.l4d2_servers WHERE status = 1 ORDER BY serverid ASC");
+export const getActiveServers = async () => {
+	return await pool.query(
+		`
+		SELECT
+			serverid,
+			ip,
+			port
+		FROM 
+			l4d2_servers 
+		WHERE
+			status = 1
+		AND
+			availability = 'FREE'
+		ORDER BY
+			serverid 
+		ASC`,
+	);
+};
+
+export const reserveServer = async (ipPort, availability) => {
+	const ip = ipPort.split(":")[0];
+
+	await pool.query(
+		`
+			UPDATE
+				l4d2_servers
+			SET
+				availability = ?
+			WHERE
+				ip = ?
+		`,
+		[availability, ip],
+	);
+};
 
 export const disconnectUser = async (UserID) => {
 	await pool.query(

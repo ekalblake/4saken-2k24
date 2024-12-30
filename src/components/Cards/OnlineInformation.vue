@@ -1,5 +1,5 @@
 <template>
-	<v-card class="text-white bgc_cards">
+	<v-card :style="userInfo?.getBoxShadow()" class="text-white bgc_cards">
 		<v-card-text class="d-flex font-weight-bold">
 			<v-row v-if="!onlinePlayers">
 				<v-col cols="12">
@@ -73,7 +73,7 @@ const userInfo = computed<PlayerItemModel | null>(() => userStore.userInfo as Pl
 const onlinePlayers = ref<InformationItemModel | null>(null);
 
 const handleSocketEvents = () => {
-	socket.on("user:connect", (rol) => {
+	socket.on("user:connect", (rol: number) => {
 		if (rol == 1 || rol == 3) onlinePlayers.value?.setOnlineUsers();
 
 		if (rol == 2) onlinePlayers.value?.setOnlineAdmins();

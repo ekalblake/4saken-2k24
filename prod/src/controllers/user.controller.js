@@ -293,44 +293,36 @@ export const checkCurrentGame = async (req, res) => {
 	}
 };
 
-export const configUser = async (req, res) => {
+export const userConfiguration = async (req, res) => {
+	Logger.request(req);
+
 	try {
-		const { colorChat, glowColor, userid } = req.body;
+		const { colorChat, glowColor } = req.body;
 
-		const useridSession = req.session.userid;
+		const { userid } = req.session;
 
-		const updateInfo = {
-			colorChat,
-			glowColor,
-			userid,
-		};
-
-		if (updateInfo.userid != useridSession)
-			return res.json(
-				errors.response(
-					HTTP_STATUS.UNAUTHORIZED,
-					"This is not your account to update this configuration. Don't be silly.",
-				),
-			);
-
-		await pool.query(
-			`UPDATE
-                                4saken.l4d2_users
-                                SET colorChat = ?,
-                                glowColor = ?
-                                WHERE userid = ?`,
-			[updateInfo.colorChat, updateInfo.glowColor, useridSession],
+		const update = await pool.query(
+			`
+			UPDATE
+				users_web
+			SET 
+				colorChat = ?,
+				glowColor = ?
+			WHERE
+				WebID = ?`,
+			[colorChat, glowColor, userid],
 		);
 
-		return res.json(errors.success(HTTP_STATUS.SUCCESSFUL, "Saved."));
+		if (update.affectedRows == 0) {
+			Logger.error(USER_MESSAGES.USER_CONFIG_NOT_UPDATED, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_CONFIG_NOT_UPDATED);
+		}
+
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, null, USER_MESSAGES.USER_CONFIG_SUCCESSFUL);
 	} catch (err) {
-		console.log(err);
-		res.json(
-			errors.response(
-				HTTP_STATUS.BAD_REQUEST,
-				"There was an error while saving your configuration, contact an Admin please.",
-			),
-		);
+		Logger.error(USER_MESSAGES.USER_CONFIG_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_CONFIG_GENERAL_ERROR);
 	}
 };
 

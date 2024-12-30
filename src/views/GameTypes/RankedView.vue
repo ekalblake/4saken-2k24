@@ -6,16 +6,19 @@
 			</v-col>
 		</v-row>
 		<v-row>
-			<v-col md="3" sm="12" cols="12">
+			<v-col md="5" lg="4" sm="12" cols="12">
 				<QueueBox :game-type="getPathGame" />
 			</v-col>
-			<v-col md="5" sm="12" cols="12" class="align-self-center">
+			<v-col md="7" lg="4" sm="12" cols="12" class="align-self-center">
 				<template v-if="!gameUser">
 					<UserNavigation :game-type="getPathGame" />
 				</template>
 				<template v-else>
 					<CurrentGameInfo :current-game="gameUser" />
 				</template>
+			</v-col>
+			<v-col md="5" lg="4" sm="12" cols="12">
+				<CurrentGamesList :room="getPathGame" />
 			</v-col>
 		</v-row>
 	</v-container>
@@ -44,6 +47,7 @@ import QueueBox from "@/components/Cards/QueueBox.vue";
 import ChatBox from "@/components/Cards/ChatBox.vue";
 import UserNavigation from "@/components/Cards/UserNavigation.vue";
 import CurrentGameInfo from "@/components/Cards/CurrentGameInfo.vue";
+import CurrentGamesList from "@/components/Cards/CurrentGamesList.vue";
 
 import useSocket from "@/composables/useSocket";
 
@@ -62,7 +66,7 @@ const gameUser = ref<QueueGamesItemModel | null>(null);
 const socketEvents = () => {
 	socketInstance.emit("room:join-room-emit", getPathGame.value);
 
-	socketInstance.on("queue:match-start", (event: IQueueGames) => {
+	socketInstance.on("queue:match-start", (event: IQueueGame) => {
 		gameUser.value = new QueueGamesItemModel(event);
 	});
 };

@@ -94,7 +94,7 @@ export const fetchUserInformation = async (steamid) => {
 			CASE
 					WHEN duel_mmr.GamesPlayed < 8 THEN 0
 					ELSE duel_mmr.Rating
-			END AS Rating,
+			END AS RatingDuel,
 			duel_mmr.GamesPlayed,
 			duel_mmr.LastGame,
 			duel_mmr.Wins

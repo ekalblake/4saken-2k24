@@ -21,6 +21,75 @@ const routes: Array<RouteRecordRaw> = [
 			requiresAuth: true,
 		},
 	},
+	{
+		path: "/faq",
+		name: WebPages.FAQ,
+		component: () => import("@/views/Faq.vue"),
+	},
+	/* {
+		path: "/leaderboard",
+		name: WebPages.LEADERBOARD,
+		component: () => import("@/views/Leaderboard.vue"),
+	},
+	{
+		path: "/about",
+		name: WebPages.ABOUT,
+		component: () => import("@/views/About.vue"),
+	},
+	{
+		path: "/partners",
+		name: WebPages.PARTNERS,
+		component: () => import("@/views/Partners.vue"),
+	}, */
+	/* {
+		 path: "/prime",
+		 name: WebPages.PREMIUM,
+		 component: () => import("@/views/Premium.vue"),
+	}, */
+	{
+		path: "/configuration",
+		name: WebPages.CONFIGURATION,
+		component: () => import("@/views/Configuration.vue"),
+		meta: {
+			requiresAuth: true,
+		},
+	},
+	/* {
+		path: "/servers",
+		name: WebPages.SERVERS,
+		component: () => import("@/views/Servers.vue"),
+	}, */
+	/* {
+		path: "/admin",
+		name: WebPages.ADMIN,
+		component: () => import("@/views/Admin/AdminView.vue"),
+		meta: {
+			requiresAuth: true,
+			is_admin: true,
+		},
+		children: [
+			{
+				path: "/admin/players",
+				name: WebPages.ADMIN_PLAYERS,
+				component: () => import("@/views/Admin/components/playerList.vue"),
+			},
+			{
+				path: "/admin/servers",
+				name: WebPages.ADMIN_SERVERS,
+				component: () => import("@/views/Admin/components/serverList.vue"),
+			},
+			{
+				path: "/admin/maps",
+				name: WebPages.ADMIN_MAPS,
+				component: () => import("@/views/Admin/components/mapList.vue"),
+			},
+		],
+	}, */
+	{
+		path: "/:catchAll(.*)",
+		name: WebPages.NOTFOUND,
+		component: () => import("@/views/ErrorView/NotFound.vue"),
+	},
 ];
 
 const router = createRouter({

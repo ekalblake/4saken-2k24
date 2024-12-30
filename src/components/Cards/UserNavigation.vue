@@ -1,5 +1,5 @@
 <template>
-	<v-card class="bgc_cards text-white rounded-lg" height="auto">
+	<v-card :style="userInfo?.getBoxShadow()" class="bgc_cards text-white rounded-lg" height="auto">
 		<div class="text-center bg-transparent" :elevation="0">
 			<div class="d-flex justify-center">
 				<v-img :src="userInfo?.getMmrImage()" height="120" width="auto" />
@@ -136,7 +136,6 @@
 				</v-btn>
 			</template>
 			<template v-else>
-				{{ partyInfo.getParty().getLeaderId() }} - {{ userInfo?.getUserId() }}
 				<v-btn
 					:disabled="partyInfo.getParty().getLeaderId() != userInfo?.getUserId()"
 					v-if="!isJoined"

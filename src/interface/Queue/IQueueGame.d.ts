@@ -1,4 +1,4 @@
-declare interface IQueueGames {
+declare interface IQueueGame {
 	gameid: matchid;
 	ip: string;
 	map: string;

@@ -15,7 +15,11 @@ import SnackBarModelV2 from "@/models/Extra/SnackBarModel";
 
 import useEmitter from "@/composables/useEmitter";
 
+import useSocket from "@/composables/useSocket";
+
 const emitter = useEmitter();
+
+const socket = useSocket();
 
 const snackBar = ref<SnackBarModelV2 | null>(null);
 
@@ -39,5 +43,7 @@ const snackbarSuccess = (snackBarObject: IApiResponse) => {
 
 onMounted(() => {
 	emitter.on("alert", snackbarSuccess);
+
+	socket.on("alert", snackbarSuccess);
 });
 </script>

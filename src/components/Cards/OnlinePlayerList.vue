@@ -73,7 +73,7 @@ const onlinePlayers = ref<PlayersModel | null>(null);
 const playerListInput = ref<string>("");
 
 const socketIo = () => {
-	socketInstance.on("room:join-room", (userInfo: PlayerItemModel) => {
+	socketInstance.on("room:join-room", (userInfo: IPlayer) => {
 		let findIndex: any = onlinePlayers.value
 			?.getPlayers()
 			.filter((item: PlayerItemModel) => item.getUserId() === userInfo.UserID);
@@ -82,7 +82,7 @@ const socketIo = () => {
 		onlinePlayers.value?.getPlayers().push(new PlayerItemModel(userInfo));
 	});
 
-	socketInstance.on("disconnect:user", (userInfo: PlayerItemModel) => {
+	socketInstance.on("disconnect:user", (userInfo: IPlayer) => {
 		let removeIndex = onlinePlayers.value
 			?.getPlayers()
 			.map((item: PlayerItemModel) => item.getUserId())
@@ -110,7 +110,7 @@ const getPlayersFilter = computed<any>(() => {
 
 	if (playerListInput.value == "") return onlinePlayers.value;
 
-	const newPlayersArray: PlayerItemModel[] = onlinePlayers.value?.getPlayers().filter((userName) => {
+	const newPlayersArray: any = onlinePlayers.value?.getPlayers().filter((userName) => {
 		return userName.getPersonaName().includes(playerListInput.value);
 	});
 	return new PlayersModel(newPlayersArray);

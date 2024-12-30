@@ -42,7 +42,7 @@ router
 			res.json(errors.response(HTTP_STATUS.REQUEST_TIMEOUT, "Unready"));
 		}
 	})
-	.get("/currentgames", currentGames)
+	.get("/current-games", currentGames)
 
 	.get("/matchstatus", matchStatus)
 

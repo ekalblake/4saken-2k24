@@ -4,6 +4,7 @@ declare interface IPlayer {
 	colorChat: string;
 	glowColor: string;
 	Rating: number;
+	RatingDuel: number;
 	GamesPlayed: number;
 	LastGame: string;
 	Wins: number;

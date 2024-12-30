@@ -63,13 +63,6 @@ export class QueuesService {
 		});
 	}
 
-	public readyQueue(userid: number | undefined, gameType: number): void {
-		socketInstance.emit("queue:ready-queue", {
-			userid,
-			room: gameType,
-		});
-	}
-
 	public async getRankedList(gameType: number): Promise<AxiosResponse<IApiResponse<IQueue[]>>> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -102,13 +95,14 @@ export class QueuesService {
 		await axios.post(`/queue/gamestarted`, playersQueue);
 	} */
 
-	/**
-	 * Verify all current games.
-	 */
-	/* public async currentGames() {
-		const { data } = await axios.get(`/queue/currentgames`);
-		return data;
-	} */
+	public async currentGames(room: number): Promise<AxiosResponse<IApiResponse<IQueueGame[]>>> {
+		const response = await axios.get(`/queue/current-games`, {
+			params: {
+				room,
+			},
+		});
+		return response;
+	}
 }
 
 export const queuesService = new QueuesService();

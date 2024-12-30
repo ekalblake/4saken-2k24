@@ -39,8 +39,8 @@ export enum QueueNameImages {
 	VETERAN_2 = "VETERAN_2.png",
 	VETERAN_3 = "VETERAN_3.png",
 	FORSAKEN = "4SAKEN.png",
-	QUEUE_ADEPT_LOGO = "ADEPT_LOGO.png",
 	QUEUE_SCOUT_LOGO = "SCOUT_LOGO.png",
+	QUEUE_ADEPT_LOGO = "ADEPT_LOGO.png",
 	QUEUE_VETERAN_LOGO = "VETERAN_LOGO.png",
 }
 

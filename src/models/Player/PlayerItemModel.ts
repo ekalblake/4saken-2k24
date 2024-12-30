@@ -3,9 +3,10 @@ import helpers from "../../utils/Dateformat";
 export default class PlayerItemModel {
 	readonly UserID: number;
 	readonly avatarfull: string;
-	readonly colorChat: string;
-	readonly glowColor: string;
+	private colorChat: string;
+	private glowColor: string;
 	readonly Rating: number;
+	readonly RatingDuel: number;
 	readonly GamesPlayed: number;
 	readonly LastGame: string;
 	readonly Wins: number;
@@ -25,6 +26,7 @@ export default class PlayerItemModel {
 		this.colorChat = data.colorChat;
 		this.glowColor = data.glowColor;
 		this.Rating = data.Rating;
+		this.RatingDuel = data.RatingDuel;
 		this.GamesPlayed = data.GamesPlayed;
 		this.LastGame = data.LastGame;
 		this.Wins = data.Wins;
@@ -42,14 +44,24 @@ export default class PlayerItemModel {
 	public getUserId(): number {
 		return this.UserID;
 	}
+
 	public getAvatarFull(): string {
 		return this.avatarfull;
 	}
+
 	public getColorChat(): string {
 		return this.colorChat;
 	}
+
 	public getGlowColor(): string {
 		return this.glowColor;
+	}
+
+	public getColorChatStyle(): Record<string, string> {
+		return {
+			color: this.colorChat,
+			"text-shadow": "0 0 10px " + this.glowColor,
+		};
 	}
 
 	public getColorStyle(): string {
@@ -58,16 +70,41 @@ export default class PlayerItemModel {
 
 	public getBackgroundColor(): Record<string, string> {
 		return {
-			"box-shadow": `0px 0px 5px ${this.colorChat}`,
+			"box-shadow": `0px 0px 5px ${this.glowColor} !important`,
 		};
 	}
 
+	public getBoxShadow(): Record<string, string> {
+		return {
+			"box-shadow": `0px 0px 5px ${this.glowColor} !important`,
+		};
+	}
+
+	public getBackgroundBox(): Record<string, string> {
+		return {
+			"background-color": `0px 0px 10px ${this.glowColor} !important`,
+		};
+	}
+
+	public getBackground(): Record<string, string> {
+		return {
+			background: `${this.glowColor} !important`,
+		};
+	}
 	public getRating(): number | string {
 		if (this.getGamesPlayed() < 8) {
 			return "SIN CALIBRAR";
 		}
 		return Math.trunc(this.Rating);
 	}
+
+	public getRatingDuel(): number | string {
+		if (this.getGamesPlayed() < 8) {
+			return "SIN CALIBRAR";
+		}
+		return Math.trunc(this.RatingDuel);
+	}
+
 	public getGamesPlayed(): number {
 		return this.GamesPlayed;
 	}
@@ -167,5 +204,15 @@ export default class PlayerItemModel {
 	}
 	public getCreatedAt(): string {
 		return helpers.dateToFamily(this.created_at);
+	}
+
+	public setChatColor(color: string | undefined) {
+		if (!color) return;
+		this.colorChat = color;
+	}
+
+	public setGlowColor(color: string | undefined) {
+		if (!color) return;
+		this.glowColor = color;
 	}
 }
