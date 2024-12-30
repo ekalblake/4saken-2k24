@@ -1,18 +1,9 @@
 <template>
-  <v-container
-    fluid
-    class="white--text"
-  >
-    Lista de mapas disponibles aqui, agregar y borrar dependiendo de la cola.
-  </v-container>
+	<v-container fluid class="white--text">
+		Lista de mapas disponibles aqui, agregar y borrar dependiendo de la cola.
+	</v-container>
 </template>
 
-<script>
-export default {
-  name: "mapList"
-}
-</script>
+<script setup lang="ts"></script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

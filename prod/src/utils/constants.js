@@ -24,9 +24,13 @@ export const USER_MESSAGES = {
 	USER_CURRENT_GAME_SUCCESS: "Juego encontrado correctamente",
 	USER_ONLINE_LIST_SUCCESS: "Usuarios en linea encontrados",
 	USER_ONLINE_LIST_GENERAL_ERROR: "Error general al listar los usuarios",
-	USER_CONFIG_SUCCESSFUL:"Se actualizó la configuración del usuario",
-	USER_CONFIG_NOT_UPDATED:"No se pudo actualizar la configuración",
-	USER_CONFIG_GENERAL_ERROR:"Hubo un error general al actualizar la configuración"
+	USER_CONFIG_SUCCESSFUL: "Se actualizó la configuración del usuario",
+	USER_CONFIG_NOT_UPDATED: "No se pudo actualizar la configuración",
+	USER_CONFIG_GENERAL_ERROR: "Hubo un error general al actualizar la configuración",
+	USER_LIST_SUCCESSFUL: "Lista de usuarios",
+	USER_LIST_GENERAL_ERROR: " Hubo un error general en la lista de usuarios.",
+	USER_LIST_SERVER_PUBLIC_SUCCESSFUL: "Servers en lista",
+	USER_LIST_SERVER_PUBLIC_GENERAL_ERROR: " Hubo un error al listar los servidores",
 };
 
 export const QUEUE_MESSAGES = {
@@ -46,14 +50,27 @@ export const QUEUE_MESSAGES = {
 	QUEUE_PARTY_JOIN_GENERAL_ERROR: "Ha ocurrido un error general al unirse a la cola en grupo.",
 	QUEUE_PARTY_JOIN_NOT_REGION: "El siguiente usuario no ha seleccionado una región",
 	QUEUE_PARTY_JOIN_GAME_PLAYING: "El siguiente usuario se encuentra en una partida",
-	QUEUE_PARTY_ERROR_FOUND:"Se encontró un error con algún miembro de la party",
+	QUEUE_PARTY_ERROR_FOUND: "Se encontró un error con algún miembro de la party",
 	QUEUE_PARTY_DROP_SUCCESSFUL: "El party se salió de la cola",
 	QUEUE_PARTY_DROP_GENERAL_ERROR: "Hubo un error al salir de la cola como party",
 	QUEUE_GAMES_INVALID_PARAM: "Parámetros incorrectos, falta room",
 	QUEUE_GAMES_SUCCESSFULL: "Lista de juegos activos",
-	QUEUE_GAMES_GENERAL_ERROR:"Hubo un error general al listar los juegos"
+	QUEUE_GAMES_GENERAL_ERROR: "Hubo un error general al listar los juegos",
 };
 
 export const SOCKET_MESSAGES = {
 	SOCKET_DISCONNECT_ERROR: "Hubo un error al desconectarse del socket",
+};
+
+export const ADMIN_MESSAGES = {
+	ADMIN_SERVER_LIST_SUCCESSFUL: "Servidores encontrados correctamente",
+	ADMIN_SERVER_GENERAL_ERROR: "Hubo un error general al listar los servidores, intentalo más tarde",
+	ADMIN_SERVER_ADD_ERROR_PARAMS: "Parámetros incorrectos, por favor verifica.",
+	ADMIN_SERVER_ADD_SUCCESSFUL: "Servidor agregado correctamente",
+	ADMIN_SERVER_ADD_GENERAL_ERROR: " Hubo un error general al agregar el servidor.",
+	ADMIN_VERIFY_NOT_ADMIN: "No eres admin para realizar esto",
+	ADMIN_VERIFY_GENERAL_ERROR: " No se ha podido verificar si estás baneado",
+	ADMIN_SERVER_DELETE_ERROR_PARAMS: "Parámetros incorrectos",
+	ADMIN_SERVER_DELETE_SUCCESSFUL: "Se borró un servidor con éxito",
+	ADMIN_SERVER_DELETE_GENERAL_ERROR: "Hubo un error general al borrar el servidor",
 };

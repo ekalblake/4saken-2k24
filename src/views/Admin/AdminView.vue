@@ -1,73 +1,56 @@
 <template>
-     <v-container fluid>
-          <v-row>
-               <v-col 
-                    sm="12"
-                    md="4" 
-                    cols="12" 
-                    v-for="(card, i) in cardInfo" :key="i"
-               >
-                    <v-card class="bgc_cards d-flex justify-center white--text">
-                         <v-card-title>
-                              <v-btn 
-                                   text class="white--text" 
-                                   @click="sendTo(card.router)"
-                              >
-                                   {{ card.title }}
-                              </v-btn>
-                         </v-card-title>
-                    </v-card>
-               </v-col>
-               <router-view />
-          </v-row>
-
-     </v-container>
+	<v-container fluid>
+		<v-card class="bgc_cards py-2 mb-2">
+			<v-row>
+				<v-col sm="12" md="4" cols="12" v-for="(card, i) of cardInfo" :key="i">
+					<v-card
+						:style="userInfo?.getBoxShadow()"
+						class="bgc_cards d-flex justify-center text-white mx-auto"
+						hover
+						elevation="16"
+						max-width="350"
+						@click="sendTo(card.router)"
+					>
+						<div class="py-4 text-center">
+							<v-icon class="mb-3" color="#d9d9d9" :icon="card.icon" size="32"> </v-icon>
+							<div class="text-h4 font-weight-bold">{{ card.title }}</div>
+						</div>
+					</v-card>
+				</v-col>
+			</v-row>
+		</v-card>
+		<v-card :style="userInfo?.getBoxShadow()" class="bgc_cards text-white">
+			<v-card-text>
+				<RouterView />
+			</v-card-text>
+		</v-card>
+	</v-container>
 </template>
 
-<script lang="ts">
-import { defineComponent, Ref, ref, SetupContext } from "vue";
-import PlayersModel from "@/models/Players/PlayersModel";
-import { WebPages } from "@/constants";
+<script lang="ts" setup>
+import { computed, Ref, ref } from "vue";
+import { useRouter } from "vue-router";
+import { WebPages } from "@/constants/constants";
+import { useUserStore } from "@/store/userStore";
+import PlayerItemModel from "@/models/Player/PlayerItemModel";
 
-export default defineComponent({
-     name: "AdminView.vue",
-     setup(_, context : SetupContext) {
-          const users: Ref<PlayersModel | null> = ref(null)
+const userStore = useUserStore();
 
-          const cardInfo: Ref<Array<object>> = ref([
-               { title: 'Jugadores', router: WebPages.ADMIN_PLAYERS },
-               { title: 'Mapas', router: WebPages.ADMIN_MAPS },
-               { title: 'Servidores', router: WebPages.ADMIN_SERVERS }
-          ])
-          /**
-           * Methods
-           */
+const userInfo = computed<PlayerItemModel | null>(() => userStore.userInfo as PlayerItemModel | null);
 
-          const sendTo = (view: string) => {
-               //@ts-ignore
-               const router = context.root.$router
+const router = useRouter();
 
-               router.push({
-                    name: view
-               })
+const cardInfo: Ref<Array<{ title: string; router: string; icon: string }>> = ref([
+	{ title: "Jugadores", router: WebPages.ADMIN_PLAYERS, icon: "mdi-map" },
+	{ title: "Mapas", router: WebPages.ADMIN_MAPS, icon: "mdi-account" },
+	{ title: "Servidores", router: WebPages.ADMIN_SERVERS, icon: "mdi-server" },
+]);
 
-          }
-
-          return {
-               users,
-               cardInfo,
-               sendTo
-          }
-     }
-})
+const sendTo = (view: string) => {
+	router.push({
+		name: view,
+	});
+};
 </script>
 
-<style scoped>
-.bgc_cards {
-     background: rgba(17, 17, 23, 0.5) !important;
-     border-color: #ef4242 !important;
-     box-shadow: 0 0 10px #910000 !important;
-     text-align: center;
-     min-width: 250px
-}
-</style>
+<style scoped></style>

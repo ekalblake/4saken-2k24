@@ -1,6 +1,6 @@
 import pool from "../database.js";
 
-export const getActiveServers = async () => {
+export const getActiveServers = async (availability) => {
 	return await pool.query(
 		`
 		SELECT
@@ -12,10 +12,11 @@ export const getActiveServers = async () => {
 		WHERE
 			status = 1
 		AND
-			availability = 'FREE'
+			availability in (?)
 		ORDER BY
 			serverid 
 		ASC`,
+		[availability],
 	);
 };
 

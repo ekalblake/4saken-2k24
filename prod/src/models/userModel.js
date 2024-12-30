@@ -448,3 +448,49 @@ export const getCurrentGame = async (gameid) => {
 
 	return currentGame;
 };
+
+export const getUserList = async () => {
+	const getUsers = await pool.query(
+		`
+			SELECT 
+				users_general.UserID,
+				users_general.SteamID64,
+				users_web.personaname,
+				users_web.avatarfull,
+				users_web.profileurl,
+				users_web.timecreated,
+				users_web.personastate,
+				users_web.colorChat,
+				users_web.glowColor,
+				users_web.created_at,
+				users_permisions.Rol,
+				users_permisions.IsPremium,
+				IF(users_mmr.GamesPlayed < 8, 0, users_mmr.Rating) AS Rating,
+				users_mmr.GamesPlayed,
+				IF(duel_mmr.GamesPlayed < 8, 0, duel_mmr.Rating) AS SoloRating
+			FROM 
+				users_general
+			INNER JOIN 
+				users_web 
+			ON 
+				users_web.WebID = users_general.WebID
+			INNER JOIN 
+				users_permisions 
+			ON 
+				users_permisions.PermisionsID = users_general.PermisionsID
+			INNER JOIN 
+				users_mmr 
+			ON 
+				users_mmr.Pug_MMRID = users_general.Pug_MMRID
+			INNER JOIN 
+				duel_mmr 
+			ON 
+				duel_mmr.Duel_MMRID = users_general.Duel_MMRID
+			WHERE 
+				users_mmr.Rating IS NOT NULL
+			ORDER BY 
+				users_mmr.Rating DESC`,
+	);
+
+	return getUsers;
+};

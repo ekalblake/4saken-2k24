@@ -29,7 +29,10 @@ class Logger {
 
 	static request(req, res = null) {
 		const { method, url, params, query, body } = req;
-		const { userid, vendedorid, steamid } = req.session;
+
+		const userid = req.session?.userid || null;
+		const steamid = req.session?.steamid || "Desconocido";
+
 		const responseDetails = res ? { statusCode: res.statusCode, statusMessage: res.statusMessage } : null;
 
 		const steamId = req.session?.steamid || "Desconocido";
@@ -41,7 +44,6 @@ class Logger {
 			body,
 			...(responseDetails && { response: responseDetails }),
 			userid,
-			vendedorid,
 			steamid,
 		};
 

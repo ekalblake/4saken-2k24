@@ -9,6 +9,7 @@ import {
 	findPartyId,
 	getCurrentGame,
 	getCurrentGameId,
+	getUserList,
 	joinNewParty,
 	newParty,
 	onlineUserList,
@@ -19,6 +20,8 @@ import {
 import Logger from "../utils/logger.js";
 
 import { USER_MESSAGES } from "../utils/constants.js";
+import { serverAvailabilityService } from "../services/extraServices.js";
+import { getActiveServers } from "../models/generalModel.js";
 
 export const failedUser = async (req, res) => {
 	return res.json(
@@ -43,35 +46,15 @@ export const fetchUser = async (req, res) => {
 };
 
 export const listUser = async (req, res) => {
+	Logger.request(req);
 	try {
-		const getUsers = await pool.query(`
-			SELECT users_general.UserID,
-				users_general.SteamID64,
-				users_web.personaname,
-				users_web.avatarfull,
-				users_web.profileurl,
-				users_web.timecreated,
-				users_web.personastate,
-				users_web.colorChat,
-				users_web.glowColor,
-				users_web.created_at,
-				users_permisions.Rol,
-				users_permisions.IsPremium,
-				IF(users_mmr.GamesPlayed < 8, 0, users_mmr.Rating) AS Rating,
-				users_mmr.GamesPlayed,
-				IF(duel_mmr.GamesPlayed < 8, 0, duel_mmr.Rating) AS SoloRating
-			FROM users_general
-			INNER JOIN users_web ON users_web.WebID = users_general.WebID
-			INNER JOIN users_permisions ON users_permisions.PermisionsID = users_general.PermisionsID
-			INNER JOIN users_mmr ON users_mmr.Pug_MMRID = users_general.Pug_MMRID
-			INNER JOIN duel_mmr ON duel_mmr.Duel_MMRID = users_general.Duel_MMRID
-			WHERE users_mmr.Rating IS NOT NULL
-			ORDER BY users_mmr.Rating DESC`);
+		const response = await getUserList();
 
-		return res.json(getUsers);
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, response, USER_MESSAGES.USER_LIST_SUCCESSFUL);
 	} catch (err) {
-		console.log(err);
-		return res.json(errors.response(HTTP_STATUS.NOT_FOUND, "There are not any players registered"));
+		Logger.error(USER_MESSAGES.USER_LIST_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, err, USER_MESSAGES.USER_LIST_GENERAL_ERROR);
 	}
 };
 
@@ -227,6 +210,48 @@ export const deleteParty = async (req, res) => {
 	} catch (err) {
 		Logger.error(USER_MESSAGES.USER_PARTY_DROP_GENERAL_ERROR, err, req);
 		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, err, USER_MESSAGES.USER_PARTY_DROP_GENERAL_ERROR);
+	}
+};
+
+export const getServerListPublic = async (req, res) => {
+	Logger.request(req);
+	try {
+		const getServers = await getActiveServers(["FREE", "RESERVED"]);
+
+		var availableServers = [];
+
+		for (let server of getServers) {
+			try {
+				const data = await serverAvailabilityService(server.ip, server.port);
+				const nombreJugador = data.players.map((l) => {
+					return l.name;
+				});
+				availableServers.push({
+					name: data.name,
+					map: data.map,
+					numplayers: data.raw.numplayers,
+					players: nombreJugador,
+					maxplayers: data.maxplayers,
+					ip: data.connect,
+					ping: data.ping,
+				});
+			} catch (err) {
+				console.log(`No se ha encontrado el servidor: ${server.ip} - ${err.message}`);
+			}
+		}
+
+		console.log(availableServers);
+
+		Logger.response(req, res);
+		return sendResponse(
+			res,
+			HTTP_STATUS.SUCCESSFUL,
+			availableServers,
+			USER_MESSAGES.USER_LIST_SERVER_PUBLIC_SUCCESSFUL,
+		);
+	} catch (err) {
+		Logger.error(USER_MESSAGES.USER_LIST_SERVER_PUBLIC_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, err, USER_MESSAGES.USER_LIST_SERVER_PUBLIC_GENERAL_ERROR);
 	}
 };
 

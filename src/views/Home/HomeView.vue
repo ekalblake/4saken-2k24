@@ -1,8 +1,6 @@
 <template>
-	<v-container fluid>
-		<HomeGuess v-if="!userInfo" />
-		<HomeLogged v-else />
-	</v-container>
+	<HomeGuess v-if="!userInfo" />
+	<HomeLogged v-else />
 </template>
 
 <script lang="ts" setup>

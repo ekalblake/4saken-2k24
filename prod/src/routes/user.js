@@ -15,6 +15,7 @@ import {
 	removePartyMember,
 	deleteParty,
 	checkCurrentGame,
+	getServerListPublic,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -33,5 +34,6 @@ router
 	.put("/config", userConfiguration)
 	.get("/get/mmr", getUserMmr)
 	.get("/online-status", getConnectionStatus)
-	.get("/get/current-game", checkCurrentGame);
+	.get("/get/current-game", checkCurrentGame)
+	.get("/server/public", getServerListPublic);
 export default router;

@@ -1,11 +1,22 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
 
-import { WebPages } from "../constants/constants";
+import HomeView from "@/views/Home/HomeView.vue";
+import RankedView from "@/views/GameTypes/RankedView.vue";
+import Leaderboard from "@/views/Leaderboard.vue";
+import Faq from "@/views/Faq.vue";
+import Servers from "@/views/Servers.vue";
 
-import HomeView from "../views/Home/HomeView.vue";
-import RankedView from "../views/GameTypes/RankedView.vue";
+import AdminView from "@/views/Admin/AdminView.vue";
+import PlayerList from "@/views/Admin/components/PlayerList.vue";
+import ServerList from "@/views/Admin/components/ServerList.vue";
+import MapList from "@/views/Admin/components/MapList.vue";
+
+import NotFound from "@/views/ErrorView/NotFound.vue";
+
 import { useUserStore } from "@/store/userStore";
+
+import { WebPages } from "@/constants/constants";
 
 const routes: Array<RouteRecordRaw> = [
 	{
@@ -24,14 +35,14 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: "/faq",
 		name: WebPages.FAQ,
-		component: () => import("@/views/Faq.vue"),
-	},
-	/* {
-		path: "/leaderboard",
-		name: WebPages.LEADERBOARD,
-		component: () => import("@/views/Leaderboard.vue"),
+		component: Faq,
 	},
 	{
+		path: "/leaderboard",
+		name: WebPages.LEADERBOARD,
+		component: Leaderboard,
+	},
+	/* {
 		path: "/about",
 		name: WebPages.ABOUT,
 		component: () => import("@/views/About.vue"),
@@ -54,15 +65,15 @@ const routes: Array<RouteRecordRaw> = [
 			requiresAuth: true,
 		},
 	},
-	/* {
+	{
 		path: "/servers",
 		name: WebPages.SERVERS,
-		component: () => import("@/views/Servers.vue"),
-	}, */
-	/* {
+		component: Servers,
+	},
+	{
 		path: "/admin",
 		name: WebPages.ADMIN,
-		component: () => import("@/views/Admin/AdminView.vue"),
+		component: AdminView,
 		meta: {
 			requiresAuth: true,
 			is_admin: true,
@@ -71,24 +82,24 @@ const routes: Array<RouteRecordRaw> = [
 			{
 				path: "/admin/players",
 				name: WebPages.ADMIN_PLAYERS,
-				component: () => import("@/views/Admin/components/playerList.vue"),
+				component: PlayerList,
 			},
 			{
 				path: "/admin/servers",
 				name: WebPages.ADMIN_SERVERS,
-				component: () => import("@/views/Admin/components/serverList.vue"),
+				component: ServerList,
 			},
 			{
 				path: "/admin/maps",
 				name: WebPages.ADMIN_MAPS,
-				component: () => import("@/views/Admin/components/mapList.vue"),
+				component: MapList,
 			},
 		],
-	}, */
+	},
 	{
 		path: "/:catchAll(.*)",
 		name: WebPages.NOTFOUND,
-		component: () => import("@/views/ErrorView/NotFound.vue"),
+		component: NotFound,
 	},
 ];
 

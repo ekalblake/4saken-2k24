@@ -31,7 +31,7 @@ export const getRandomMaps = () => {
 };
 
 export const reserveIp = async () => {
-	const getServers = await getActiveServers();
+	const getServers = await getActiveServers(["FREE"]);
 
 	let checkActiveServer = null;
 

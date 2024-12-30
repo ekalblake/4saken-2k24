@@ -1,18 +1,7 @@
 <template>
-  <v-container
-      fluid
-      class="white--text"
-  >
-  Lista de jugadores (Banear y dar premium)
-</v-container>
+	<v-container fluid class="white--text"> Lista de jugadores (Banear y dar premium) </v-container>
 </template>
 
-<script>
-export default {
-  name: "playerList"
-}
-</script>
+<script setup lang="ts"></script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

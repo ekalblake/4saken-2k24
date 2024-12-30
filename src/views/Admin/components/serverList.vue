@@ -1,209 +1,138 @@
 <template>
-  <v-container
-      fluid
-      class="white--text"
-  >
-    <v-form
-        ref="form"
-        v-model="valid"
-        lazy-validation
-    >
-      <v-row>
-        <v-col
-            class="hidden-sm-and-down"
-            cols="12"
-            md="5"
-        >
-
-        </v-col>
-        <v-col
-            class="hidden-sm-and-down"
-            cols="12"
-            md="2"
-        >
-          <v-text-field
-              dark
-              v-model="serverIP"
-              :rules="[
-                        v => !!v || 'IP es requerido',
-                        ]"
-              label="IP"
-              required
-          ></v-text-field>
-        </v-col>
-        <v-col
-            cols="12"
-            md="1"
-        >
-          <v-text-field
-              dark
-              v-model="serverPort"
-              :counter="5"
-              :rules="[
-                        v => !!v || 'PORT es requerido',
-                        v => (v && v.length <= 5) || 'Menor de 6 digitos.'
-                        ]"
-              label="PORT"
-              required
-          ></v-text-field>
-        </v-col
-        >
-        <v-col
-            cols="12"
-            md="3">
-          <v-text-field
-              dark
-              v-model="serverName"
-              :counter="25"
-              :rules="[
-                        v => !!v || 'Nombre es requerido',
-                        v => (v && v.length <= 25) || 'Menor de 25 digitos.'
-                      ]"
-              label="Server name"
-              required
-          ></v-text-field>
-        </v-col>
-        <v-col
-            cols="12"
-            md="1">
-          <v-btn
-              class="d-flex align-center align-content-center justify-center "
-              fab
-              dark
-              color="error"
-              :disabled="!valid"
-              @click.stop.prevent="addServer"
-          >
-            <v-icon dark>
-              mdi-plus
-            </v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-form>
-    <div v-if="!serverList"></div>
-    <v-row
-        v-else
-    >
-      <v-col
-          cols="12"
-          md="3"
-          sm="4"
-          v-for="(server,i) in serverList.getServerArray()"
-          :key="i"
-      >
-        <v-card
-            class="bgc_cards pa-2"
-        >
-          <v-row>
-            <v-col
-                cols="9"
-                md="9"
-            >
-              <h4 class="d-flex justify-center white--text">{{ server.getExtra() }}:</h4>
-              <h6 class="white--text">{{server.getIp()}}:{{server.getPort()}}</h6>
-            </v-col>
-            <v-col
-                cols="3"
-                md="3"
-                style="align-self: center !important;"
-            >
-              <v-btn
-                  class="d-flex align-content-center align-center align-self-auto"
-                  fab
-                  small
-                  dark
-                  color="indigo"
-                  @click.once="removeServer(server.getServerId())"
-              >
-                <v-icon dark>
-                  mdi-minus
-                </v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+	<v-row>
+		<v-col cols="12">
+			<v-form ref="formServer" v-model="validForm" lazy-validation>
+				<v-row>
+					<v-col class="hidden-sm-and-down" cols="12" md="4"> </v-col>
+					<v-col cols="12" md="2">
+						<v-text-field
+							v-model="serverObj.ip"
+							:rules="[(v) => !!v || 'IP es requerido']"
+							label="IP"
+							required
+						></v-text-field>
+					</v-col>
+					<v-col cols="12" md="2">
+						<v-text-field
+							dark
+							v-model="serverObj.port"
+							:counter="5"
+							:rules="[
+								(v) => !!v || 'PORT es requerido',
+								(v) => (v && v.length <= 5) || 'Menor de 6 digitos.',
+							]"
+							label="PORT"
+							required
+						></v-text-field>
+					</v-col>
+					<v-col cols="12" md="3">
+						<v-text-field
+							dark
+							v-model="serverObj.extra"
+							:counter="25"
+							:rules="[
+								(v) => !!v || 'Nombre es requerido',
+								(v) => (v && v.length <= 25) || 'Menor de 25 digitos.',
+							]"
+							label="Server name"
+							required
+						></v-text-field>
+					</v-col>
+					<v-col cols="12" md="1">
+						<v-btn block color="success" :disabled="!validForm" @click.stop.prevent="addServer">
+							<v-icon dark> mdi-plus </v-icon>
+						</v-btn>
+					</v-col>
+				</v-row>
+			</v-form>
+		</v-col>
+	</v-row>
+	<div v-if="!serverList"></div>
+	<v-row v-else>
+		<v-col cols="12" md="3" sm="4" v-for="(server, i) of serverList.getServerArray()" :key="i">
+			<v-card class="bg-fs-primary pa-2 text-white">
+				<v-row>
+					<v-col cols="12" md="9">
+						<p>{{ server.getExtra() }}</p>
+						<p>{{ server.getIp() }}:{{ server.getPort() }}</p>
+					</v-col>
+					<v-col cols="3" md="3">
+						<v-btn
+							size="small"
+							icon="mdi-minus"
+							color="indigo"
+							@click.once="removeServer(server.getServerId(), i)"
+						>
+						</v-btn>
+					</v-col>
+				</v-row>
+			</v-card>
+		</v-col>
+	</v-row>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, Ref, onMounted, SetupContext} from "vue";
-import { adminService} from "@/services/Admin/AdminService";
+<script lang="ts" setup>
+import { ref, onMounted, reactive } from "vue";
+import { adminService } from "@/services/Admin/AdminService";
 import ServerModel from "@/models/Admin/ServerModel";
-import ServerItemModel from "@/models/Admin/ServerItemModel";
 
+import useEmitter from "@/composables/useEmitter";
 
-export default defineComponent({
-  name: "serverList",
+const emitter = useEmitter();
 
-  setup(_,context : SetupContext) {
+const formServer = ref<HTMLFormElement | null>(null);
 
-    let serverList: Ref<ServerModel | null> = ref(null)
-    let valid: Ref<boolean> = ref(false);
-    let serverIP: Ref<string> = ref('');
-    let serverName: Ref<string> = ref('');
-    let serverPort : Ref<number> =ref(0);
+const serverList = ref<ServerModel | null>(null);
 
-    const getServerList = async () => {
-      const responseServer = await adminService.getServerList()
-      serverList.value = new ServerModel(responseServer)
-    }
+const validForm = ref<boolean>(false);
 
-    const addServer = async () => {
-      //@ts-ignore
-      context.refs.form.validate();
+const serverObj = reactive<{ ip: string; extra: string; port: number }>({
+	ip: "",
+	extra: "",
+	port: 0,
+});
 
-      let addServer = await adminService.newServer(serverIP.value, serverName.value, serverPort.value);
-      if(addServer){
-        console.log("AGREGO EL SV");
-        serverList.value?.getServerArray().push(new ServerItemModel({
-          ip: serverIP.value,
-          extra : serverName.value,
-          port : serverPort.value
-        }))
+const getServerList = async () => {
+	adminService.getServerList().then((response) => {
+		serverList.value = new ServerModel(response.data.data);
+		console.log(serverList.value);
+	});
+};
 
-       //@ts-ignore
-       context.refs.form.reset();
+const addServer = async () => {
+	if (!formServer.value) return;
 
-      }
+	const { valid } = await formServer.value.validate();
 
-    }
+	if (valid) {
+		await adminService
+			.newServer(serverObj)
+			.then((response) => {
+				serverList.value?.addServer(response.data.data);
+				emitter.emit("alert", response.data);
+			})
+			.catch((err) => {
+				emitter.emit("alert", err.data.data);
+			});
+	}
+	formServer.value.reset();
+};
 
-    const removeServer = async (index : number) =>{
+const removeServer = async (serverId: number, index: number) => {
+	adminService
+		.deleteServer(serverId)
+		.then((response) => {
+			serverList.value?.removeServer(index);
+			emitter.emit("alert", response.data);
+		})
+		.catch((err) => {
+			emitter.emit("alert", err.data.data);
+		});
+};
 
-      let removeServer = await adminService.deleteServer(index);
-
-      if(removeServer){
-        let removeIndex = serverList.value?.getServerArray().map((item: ServerItemModel) => {
-          return item.getServerId();
-        }).indexOf(index);
-        serverList.value?.getServerArray().splice(removeIndex,1)
-      }
-    }
-
-    onMounted(() => {
-      getServerList()
-    })
-    return {
-      serverList,
-      valid,
-      serverIP,
-      serverName,
-      serverPort,
-      removeServer,
-      addServer
-    }
-  }
-})
+onMounted(() => {
+	getServerList();
+});
 </script>
 
-<style scoped>
-.bgc_cards {
-  background: rgba(17, 17, 23, 0.5) !important;
-  border-color: #ef4242 !important;
-  box-shadow: 0 0 10px #910000 !important;
-  min-width: 250px
-}
-</style>
+<style scoped></style>

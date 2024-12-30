@@ -105,9 +105,15 @@ export class PlayerService {
 		});
 	}
 
-	public async getUsers(): Promise<IPlayer[]> {
-		const { data } = await axios.get(`/user/get/users`);
-		return data;
+	public async getUsers(): Promise<AxiosResponse<IApiResponse<IPlayer[]>>> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await axios.get(`/user/get/users`);
+				resolve(response);
+			} catch (err) {
+				reject(err);
+			}
+		});
 	}
 
 	public async getOnlinePlayerList(): Promise<AxiosResponse<IApiResponse<IPlayer[]>>> {
@@ -127,6 +133,17 @@ export class PlayerService {
 			glowColor: glowColor,
 		});
 		return response;
+	}
+
+	public async getServerListPublic(): Promise<AxiosResponse<IApiResponse<IServerInfo[]>>> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await axios.get(`/user/server/public`);
+				resolve(response);
+			} catch (err) {
+				reject(err);
+			}
+		});
 	}
 }
 

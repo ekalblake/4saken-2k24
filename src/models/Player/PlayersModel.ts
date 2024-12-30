@@ -5,9 +5,7 @@ export default class PlayersModel {
 
 	public constructor(data: IPlayer[]) {
 		this.playersArray = [];
-		data.forEach((players) =>
-			this.playersArray.push(new PlayerItemModel(players)),
-		);
+		data.forEach((players: IPlayer) => this.playersArray.push(new PlayerItemModel(players)));
 	}
 
 	public getPlayers(): PlayerItemModel[] {

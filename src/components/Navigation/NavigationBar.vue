@@ -7,8 +7,8 @@
 				<v-tab to="/leaderboard">{{ t("leaderboard") }}</v-tab>
 				<!-- <v-tab to="/about">{{ t("about_us") }}</v-tab>
 				<v-tab to="/partners">{{ t("partners") }}</v-tab>
-				<v-tab to="/prime">{{ t("prime") }}</v-tab>
-				<v-tab to="/servers">{{ t("servers") }}</v-tab> -->
+				<v-tab to="/prime">{{ t("prime") }}</v-tab>-->
+				<v-tab to="/servers">{{ t("servers") }}</v-tab>
 			</v-tabs>
 			<v-app-bar-nav-icon class="d-md-none" @click="sidebar = !sidebar"> </v-app-bar-nav-icon>
 		</template>
@@ -56,7 +56,7 @@
 						<template v-slot:prepend>
 							<v-icon>mdi-account-cog</v-icon>
 						</template>
-						<RouterLink class="text-decoration-none text-white" to="admin"> Administrar </RouterLink>
+						<RouterLink class="text-decoration-none text-white" to="/admin"> Administrar </RouterLink>
 					</v-list-item>
 					<v-spacer></v-spacer>
 					<v-list-item @click="logout()">
