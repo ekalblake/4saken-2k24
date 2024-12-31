@@ -1,36 +1,40 @@
 {
-  "name": "4saken-2k24",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@mdi/font": "^7.4.47",
-    "axios": "^1.7.4",
-    "dotenv": "^16.4.7",
-    "gamedig": "^5.1.2",
-    "lodash": "^4.17.21",
-    "mitt": "^3.0.1",
-    "pinia": "^2.2.2",
-    "socket.io-client": "^4.7.5",
-    "steamidconvert": "^0.2.4",
-    "timeago.js": "^4.0.2",
-    "vite-plugin-vuetify": "^2.0.4",
-    "vue": "^3.4.37",
-    "vue-i18n": "^9.14.0",
-    "vue-router": "^4.4.3",
-    "vue3-emoji-picker": "^1.1.8",
-    "vuetify": "^3.7.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.5.0",
-    "@vitejs/plugin-vue": "^5.1.2",
-    "typescript": "^5.5.3",
-    "vite": "^5.4.1",
-    "vue-tsc": "^2.0.29"
-  }
+	"name": "4saken-2k24",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vue-tsc -b && vite build",
+		"preview": "vite preview",
+		"build-only": "vite build",
+		"type-check": "vue-tsc --noEmit",
+		"lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+		"format": "prettier --write src/"
+	},
+	"dependencies": {
+		"@mdi/font": "^7.4.47",
+		"axios": "^1.7.4",
+		"dotenv": "^16.4.7",
+		"gamedig": "^5.1.2",
+		"lodash": "^4.17.21",
+		"mitt": "^3.0.1",
+		"pinia": "^2.2.2",
+		"socket.io-client": "^4.7.5",
+		"steamidconvert": "^0.2.4",
+		"timeago.js": "^4.0.2",
+		"vite-plugin-vuetify": "^2.0.4",
+		"vue": "^3.4.37",
+		"vue-i18n": "^9.14.0",
+		"vue-router": "^4.4.3",
+		"vue3-emoji-picker": "^1.1.8",
+		"vuetify": "^3.7.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.5.0",
+		"@vitejs/plugin-vue": "^5.1.2",
+		"typescript": "^5.5.3",
+		"vite": "^5.4.1",
+		"vue-tsc": "^2.0.29"
+	}
 }
