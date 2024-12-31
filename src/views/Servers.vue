@@ -1,5 +1,12 @@
 <template>
 	<v-container fluid class="text-white">
+		<v-row>
+			<v-col cols="12">
+				<h1 class="text-h4 text-center font-weight-bold text-uppercase pa-5">
+					{{ t("server_title") }}
+				</h1>
+			</v-col>
+		</v-row>
 		<Suspense>
 			<ServerList />
 			<template #fallback>
@@ -12,6 +19,10 @@
 <script lang="ts" setup>
 import Loading from "@/views/ErrorView/Loading.vue";
 import ServerList from "@/views/Component/ServerList.vue";
+
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 </script>
 
 <style scoped>

@@ -64,6 +64,14 @@ export default class PlayerItemModel {
 		};
 	}
 
+	public getIsSupportStyle(): Record<string, string> {
+		return {
+			color: "navy",
+			textShadow: "rgb(255 0 0) 0px 0px 10px",
+			fontWeight: "bold",
+		};
+	}
+
 	public getColorStyle(): string {
 		return `box-shadow: 0px 0px 5px ${this.colorChat};`;
 	}

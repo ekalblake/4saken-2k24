@@ -1,6 +1,6 @@
 <template>
 	<v-col cols="12" class="loading-center bg-purple-secondary" :style="{ 'min-height': setMinHeight }">
-		<v-img class="mx-auto" src="@/assets/logos/LOGO CONNECT@112.png" width="150" />
+		<v-img class="mx-auto" src="src/assets/logos/LOGOCONNECT@112.png" width="150" />
 		<h3 class="text-center">
 			<slot></slot>
 		</h3>

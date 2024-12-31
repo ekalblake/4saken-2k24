@@ -1,7 +1,12 @@
 <template>
 	<v-app-bar app class="bgc_cards text-white" density="compact">
 		<template v-slot:prepend>
-			<v-tabs density="compact" hide-slider class="d-none d-md-block position-absolute">
+			<v-tabs
+				:style="[userInfo?.getColorChatStyle()]"
+				density="compact"
+				hide-slider
+				class="d-none d-md-block position-absolute"
+			>
 				<v-tab to="/">{{ t("inicio") }}</v-tab>
 				<v-tab to="/faq">{{ t("faq") }}</v-tab>
 				<v-tab to="/leaderboard">{{ t("leaderboard") }}</v-tab>

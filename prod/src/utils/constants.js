@@ -31,6 +31,8 @@ export const USER_MESSAGES = {
 	USER_LIST_GENERAL_ERROR: " Hubo un error general en la lista de usuarios.",
 	USER_LIST_SERVER_PUBLIC_SUCCESSFUL: "Servers en lista",
 	USER_LIST_SERVER_PUBLIC_GENERAL_ERROR: " Hubo un error al listar los servidores",
+	USER_MMR_PARAMS_ERROR: "Parámetros incorrectos",
+	USER_MMR_NOT_FOUND_STEAM: "No se encontró el jugador",
 };
 
 export const QUEUE_MESSAGES = {
@@ -73,4 +75,14 @@ export const ADMIN_MESSAGES = {
 	ADMIN_SERVER_DELETE_ERROR_PARAMS: "Parámetros incorrectos",
 	ADMIN_SERVER_DELETE_SUCCESSFUL: "Se borró un servidor con éxito",
 	ADMIN_SERVER_DELETE_GENERAL_ERROR: "Hubo un error general al borrar el servidor",
+};
+
+export const CHAT_MESSAGES = {
+	CHAT_LIST_INVALID_PARAM: "Parámetro de sala inválido",
+	CHAT_LIST_SUCCESSFUL: "Lista de mensajes",
+	CHAT_LIST_GENERAL_ERROR: "Hubo un error al listar los mensajes.",
+	CHAT_SEND_MESSAGE_INVALID_PARAM: "Parámetros incorrectos, por favor corrigelos.",
+	CHAT_SEND_MESSAGE_FAST: "Estás enviando mensajes rápido",
+	CHAT_SEND_SUCCESFUL: "Has enviado un mensaje correctamente",
+	CHAT_SEND_GENERAL_ERROR: "Hubo un error general al enviar un mensaje",
 };

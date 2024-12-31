@@ -20,9 +20,7 @@ export const getActiveServers = async (availability) => {
 	);
 };
 
-export const reserveServer = async (ipPort, availability) => {
-	const ip = ipPort.split(":")[0];
-
+export const reserveServer = async (serverid, availability) => {
 	await pool.query(
 		`
 			UPDATE
@@ -30,9 +28,9 @@ export const reserveServer = async (ipPort, availability) => {
 			SET
 				availability = ?
 			WHERE
-				ip = ?
+				serverid = ?
 		`,
-		[availability, ip],
+		[availability, serverid],
 	);
 };
 

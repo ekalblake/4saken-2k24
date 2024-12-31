@@ -19,6 +19,7 @@ getQueuedUsers().then(async (response) => {
 let ioInstance;
 
 setInterval(async () => {
+	console.log("Buscando partida cada 30 segundos..");
 	if (queueArray.length > 0) {
 		const firstPlayer = queueArray[0];
 		const potentialMatches = findPotentialMatches(firstPlayer);
@@ -85,7 +86,7 @@ const startMatch = async (players, io, room, region) => {
 
 		await insertNewgame(objReturn);
 
-		await reserveServer(getRandomIP.ip, "RESERVED");
+		await reserveServer(getRandomIP.serverid, "RESERVED");
 
 		console.log(`Match started with players: ${players.map((p) => p.personaname).join(", ")}`);
 	} catch (err) {

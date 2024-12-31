@@ -3,13 +3,6 @@
 		{{ errorFound.message }}
 	</ErrorCaptured>
 	<template v-else>
-		<v-row>
-			<v-col cols="12">
-				<h1 class="text-h4 text-center font-weight-bold text-uppercase pa-5">
-					{{ t("server_title") }}
-				</h1>
-			</v-col>
-		</v-row>
 		<v-row v-if="serverList">
 			<v-col cols="12" class="white--text">
 				<v-card class="bgc_cards">

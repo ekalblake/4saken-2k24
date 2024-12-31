@@ -8,7 +8,7 @@ import socketSetup from "./socket/sockets.js";
 import authRouter from "./routes/auth.js";
 import userRouter from "./routes/user.js";
 import queueRouter from "./routes/queue.js";
-import messagesRouter from "./routes/messages.js";
+import chatRouter from "./routes/messages.js";
 import adminRouter from "./routes/admin.js";
 
 const server = http.createServer(app);
@@ -36,7 +36,7 @@ app.use("/user", userRouter);
 
 app.use("/queue", queueRouter);
 
-app.use("/messages", messagesRouter);
+app.use("/chat", chatRouter);
 
 app.use("/admin", adminRouter);
 

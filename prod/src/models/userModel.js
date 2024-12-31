@@ -494,3 +494,58 @@ export const getUserList = async () => {
 
 	return getUsers;
 };
+
+export const connectionStatus = async () => {
+	return await pool.query(
+		`
+			SELECT 
+				COUNT(if(users_web.isonline = 1,1,null)) as onlineUser, 
+				COUNT(if(users_web.isonline = 1 and users_permisions.Rol=2,1,null)) as onlineAdmins 
+			FROM 
+				users_general 
+			INNER JOIN 
+				users_web 
+			ON  
+				users_web.WebID =  users_general.UserID
+			INNER JOIN 
+				users_permisions 
+			ON 
+				users_permisions.PermisionsID = users_general.UserID
+		`,
+	);
+};
+
+export const updateConfig = async (colorChat, glowColor, userid) => {
+	await pool.query(
+		`
+				UPDATE
+					users_web
+				SET 
+					colorChat = ?,
+					glowColor = ?
+				WHERE
+					WebID = ?`,
+		[colorChat, glowColor, userid],
+	);
+};
+
+export const getUserMMR = async (steamid) => {
+	await pool.query(
+		`
+		SELECT
+			users_mmr.Rating,
+			users_mmr.Deviation,
+			users_mmr.GamesPlayed
+		FROM 
+			users_general 
+		INNER JOIN 
+			users_mmr
+		ON 
+			users_general.UserID = users_mmr.MMRID
+		WHERE 
+			users_general.SteamID64 = ?
+		LIMIT
+			1`,
+		[steamid],
+	);
+};

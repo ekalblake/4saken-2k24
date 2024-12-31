@@ -1,42 +1,32 @@
 <template>
-	<v-card class="bgc_cards text-white overflow-auto" max-height="1000" max-width="650">
+	<v-card class="bgc_cards text-white overflow-auto" max-height="1000" min-width="650" height="auto">
 		<div v-if="isLoading" class="progressbar_center">
 			<v-progress-circular indeterminate color="primary" />
 		</div>
 		<template v-else>
 			<div ref="messageContainer">
-				<v-list class="bg-transparent">
-					<v-list-item v-for="(message, i) in messageList?.getChats()" :key="i">
+				<v-list v-if="messageList" class="bg-transparent">
+					<v-list-item v-for="(message, i) of messageList?.getChats()" :key="i">
 						<template v-slot:prepend>
 							<v-avatar
+								size="30"
 								@click="openProfile(message.getProfileURL())"
 								class="rounded-lg cursor-pointer"
-								:style="'box-shadow: 0px 0px 5px' + message.getColorChat() + ';'"
+								:style="message.getColorStyle()"
 							>
 								<v-img :src="message.getAvatarFull()" />
 							</v-avatar>
 						</template>
 						<template v-slot:default>
-							<span
-								class="overflow-auto"
-								:style="{
-									color: message.getColorChat(),
-									textShadow: '0 0 10px ' + message.getGlowColor(),
-									fontWeight: 'bold',
-								}"
-							>
+							<span class="overflow-auto" :style="message.getColorChatStyle()">
 								{{ message.getPersonaName() }} </span
 							>:
-							<span
-								v-if="userInfo?.getIsSupporting()"
-								:style="{
-									color: 'navy',
-									textShadow: 'rgb(255 0 0) 0px 0px 10px',
-									fontWeight: 'bold',
-								}"
-								>{{ message.getMessageChat() }}
+							<span v-if="userInfo?.getIsSupporting()" :style="message.getIsSupportStyle()">
+								{{ message.getMessageChat() }}
 							</span>
-							<span v-else>{{ message.getMessageChat() }} </span>
+							<span v-else>
+								{{ message.getMessageChat() }}
+							</span>
 						</template>
 					</v-list-item>
 				</v-list>
@@ -57,13 +47,7 @@
 				maxlength="150"
 			>
 				<template v-slot:append-inner>
-					<v-btn
-						class="rounded-lg"
-						variant="plain"
-						size="x-small"
-						icon="mdi-send"
-						@click="$emit('send-message')"
-					>
+					<v-btn class="rounded-lg" variant="plain" size="x-small" icon="mdi-send" @click="addMessage">
 					</v-btn>
 				</template>
 				<template v-slot:append>
@@ -93,14 +77,16 @@ import useSocket from "@/composables/useSocket";
 import { useUserStore } from "@/store/userStore";
 
 import ChatModel from "@/models/Chat/ChatModel";
-import ChatItemModel from "@/models/Chat/ChatItemModel";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
 
 import { chatService } from "@/services/Chat/ChatService";
+import useEmitter from "@/composables/useEmitter";
 
 const props = defineProps<{
 	gameType: number;
 }>();
+
+const emitter = useEmitter();
 
 const socketInstance = useSocket();
 
@@ -123,32 +109,27 @@ const openProfile = (link: string) => {
 };
 
 const addMessage = async () => {
-	if (!chatText.value) return;
+	if (!chatText.value || !userInfo.value) return;
 
-	const message: any = {
-		userid: userInfo.value?.getUserId(),
-		profileurl: userInfo.value?.getProfileURL(),
-		ispremium: userInfo.value?.getIsPremium(),
-		rating: userInfo.value?.getRating(),
-		personastate: userInfo.value?.getCurrentStatus(),
-		rol: userInfo.value?.getRol(),
-		steamid: userInfo.value?.getSteamId(),
-		colorChat: userInfo.value?.getColorChat(),
-		glowColor: userInfo.value?.getGlowColor(),
-		avatarfull: userInfo.value?.getAvatarFull(),
-		personaname: userInfo.value?.getPersonaName(),
-		timecreted: userInfo.value?.getTimeCreated(),
+	const message: IChatMessage = {
 		message_body: chatText.value,
-		room: props.gameType,
-		created_at: Math.floor(Date.now() / 1000),
 	};
 
-	chatService.sendMessage(message, props.gameType);
+	chatService
+		.sendMessage(message, props.gameType)
+		.then((response) => {
+			socketInstance.emit("chat:handle-send-message", {
+				message: response.data.data,
+				room: props.gameType,
+			});
+		})
+		.catch((err) => {
+			emitter.emit("alert", err.response.data);
+		});
 
 	chatText.value = "";
 };
 
-//Insert Emoji
 const insertEmoji = (emoji: any) => {
 	chatText.value += emoji.i;
 };
@@ -165,34 +146,22 @@ const scrollToBottom = () => {
 	});
 };
 
-watch(chatText, () => {
-	if (chatText.value != "") {
-		socketInstance.emit("user:typing", {
-			user: userInfo.value?.getPersonaName(),
-			room: props.gameType,
-		});
-	}
-});
-
-//Get Messages
 const getMessages = async () => {
 	chatService
 		.getRoomMessages(props.gameType)
-		.then((response: IChat[]) => {
-			messageList.value = new ChatModel(response);
+		.then((response) => {
+			messageList.value = new ChatModel(response.data.data);
 			isLoading.value = false;
 			scrollToBottom();
 		})
 		.catch((err) => {
-			console.log(err);
+			emitter.emit("alert", err.response.data);
 		});
 };
 
 const socketEvents = () => {
-	socketInstance.on("chat:handle-recieve-message", (message: ChatItemModel) => {
-		const messageConstructor = new ChatItemModel(message);
-
-		messageList.value?.getChats().push(messageConstructor);
+	socketInstance.on("chat:handle-recieve-message", (message: IChat) => {
+		messageList.value?.addMessage(message);
 
 		if (chatText.value == "") userTyping.value = "";
 
@@ -200,15 +169,8 @@ const socketEvents = () => {
 		scrollToBottom();
 	});
 
-	socketInstance.on("delete:message:admin", (chatid: number) => {
-		let removeIndex = messageList.value
-			?.getChats()
-			.map((item: ChatItemModel) => {
-				return item.getChatId();
-			})
-			.indexOf(chatid);
-
-		if (removeIndex !== -1) messageList.value?.getChats().splice(removeIndex!, 1);
+	socketInstance.on("admin:delete-message", (chatid: number) => {
+		messageList.value?.removeMessage(chatid);
 	});
 
 	socketInstance.on("chat:user-typing", (userName: string) => {
@@ -219,6 +181,15 @@ const socketEvents = () => {
 		}
 	});
 };
+
+watch(chatText, () => {
+	if (chatText.value != "") {
+		socketInstance.emit("user:typing", {
+			user: userInfo.value?.getPersonaName(),
+			room: props.gameType,
+		});
+	}
+});
 
 watch(userTyping, () => {
 	setTimeout(() => {

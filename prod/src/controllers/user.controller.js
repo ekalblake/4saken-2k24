@@ -3,6 +3,7 @@ import errors, { responseError, sendResponse, sendResponseObj } from "../utils/e
 import { HTTP_STATUS } from "../config.js";
 
 import {
+	connectionStatus,
 	dropParty,
 	dropPartyMember,
 	fetchUserInformation,
@@ -10,9 +11,11 @@ import {
 	getCurrentGame,
 	getCurrentGameId,
 	getUserList,
+	getUserMMR,
 	joinNewParty,
 	newParty,
 	onlineUserList,
+	updateConfig,
 	updateRegionUser,
 	verifyParty,
 	verifyPartyMembers,
@@ -189,9 +192,9 @@ export const deleteParty = async (req, res) => {
 
 	const { userid } = req.session;
 
-	const { party_id } = req.params;
-
 	try {
+		const { party_id } = req.params;
+
 		if (!party_id) {
 			Logger.error(USER_MESSAGES.USER_PARTY_DROP_ERROR_PARAM, null, req);
 			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, response, USER_MESSAGES.USER_PARTY_DROP_ERROR_PARAM);
@@ -240,8 +243,6 @@ export const getServerListPublic = async (req, res) => {
 			}
 		}
 
-		console.log(availableServers);
-
 		Logger.response(req, res);
 		return sendResponse(
 			res,
@@ -258,25 +259,10 @@ export const getServerListPublic = async (req, res) => {
 export const getConnectionStatus = async (req, res) => {
 	Logger.request(req);
 	try {
-		const [getStatus] = await pool.query(`
-			  SELECT 
-				   COUNT(if(users_web.isonline = 1,1,null)) as onlineUser, 
-				   COUNT(if(users_web.isonline = 1 and users_permisions.Rol=2,1,null)) as onlineAdmins 
-			  FROM 
-				   users_general 
-			  INNER JOIN 
-				   users_web 
-			  ON  
-				   users_web.WebID =  users_general.UserID
-			  INNER JOIN 
-				   users_permisions 
-			  ON 
-				   users_permisions.PermisionsID = users_general.UserID
-		  `);
-
+		const [response] = await connectionStatus();
 		Logger.response(req, res);
 
-		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, getStatus, USER_MESSAGES.USER_GET_CONNECTION_SUCCESSFUL);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, response, USER_MESSAGES.USER_GET_CONNECTION_SUCCESSFUL);
 	} catch (err) {
 		Logger.error(USER_MESSAGES.USER_GET_CONNECTION_STATUS_ERROR, err, req);
 		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, err, USER_MESSAGES.USER_GET_CONNECTION_STATUS_ERROR);
@@ -326,17 +312,7 @@ export const userConfiguration = async (req, res) => {
 
 		const { userid } = req.session;
 
-		const update = await pool.query(
-			`
-			UPDATE
-				users_web
-			SET 
-				colorChat = ?,
-				glowColor = ?
-			WHERE
-				WebID = ?`,
-			[colorChat, glowColor, userid],
-		);
+		const update = updateConfig(colorChat, glowColor, userid);
 
 		if (update.affectedRows == 0) {
 			Logger.error(USER_MESSAGES.USER_CONFIG_NOT_UPDATED, null, req);
@@ -353,31 +329,22 @@ export const userConfiguration = async (req, res) => {
 
 export const getUserMmr = async (req, res) => {
 	try {
-		const steamid = req.query.steamid;
+		const { steamid } = req.query;
 
-		let getUserMmr = await pool.query(
-			`SELECT
-                                                       users_mmr.Rating,
-                                                       users_mmr.Deviation,
-                                                       users_mmr.GamesPlayed
-                                                       FROM users_general 
-                                                       INNER JOIN users_mmr
-                                                            ON users_general.UserID = users_mmr.MMRID
-                                                       WHERE users_general.SteamID64 = ?`,
-			[steamid],
-		);
+		if (!steamid) {
+			Logger.error(USER_MESSAGES.USER_MMR_PARAMS_ERROR, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, response, USER_MESSAGES.USER_MMR_PARAMS_ERROR);
+		}
 
-		if (getUserMmr.length == 0)
-			return res.json(errors.response(HTTP_STATUS.NOT_FOUND, "No se ha encontrado el jugador"));
+		let [getUserMmr] = await getUserMMR(steamid);
 
-		if (getUserMmr[0].GamesPlayed < 8) return res.json({ GamesPlayed: getUserMmr[0].GamesPlayed });
+		if (!getUserMmr) {
+			Logger.error(USER_MESSAGES.USER_MMR_NOT_FOUND_STEAM, null, req);
+			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, response, USER_MESSAGES.USER_MMR_NOT_FOUND_STEAM);
+		}
 
-		const newArray = {
-			Rating: getUserMmr[0].Rating,
-			Deviation: getUserMmr[0].Deviation,
-		};
-
-		return res.json(newArray);
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, getUserMmr, USER_MESSAGES.USER_CONFIG_SUCCESSFUL);
 	} catch (err) {
 		console.log(err);
 	}

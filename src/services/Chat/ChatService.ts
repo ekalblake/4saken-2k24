@@ -1,7 +1,6 @@
+import { AxiosResponse } from "axios";
 import axios from "../axios";
-import useSocket from "@/composables/useSocket";
 
-const socketInstance = useSocket();
 export class ChatService {
 	/* public async deleteMessageAsAdmin(chatid: number): Promise<any> {
 		try {
@@ -12,35 +11,25 @@ export class ChatService {
 		}
 	} */
 
-	/**
-	 * ROOM 1 : SOLO
-	 * ROOM 2 : RANKED
-	 * ROOM 3 : TEAMS
-	 */
-
-	/* public async getMessageUnranked(room: number): Promise<any> {
-		return await axios.get(`/messages/${room}`);
-	} */
-
-	/**
-	 * TODO GET MESSAGES RANKED + TEAMS
-	 */
-
-	public async getRoomMessages(room: number): Promise<IChat[]> {
+	public async getRoomMessages(room: number): Promise<AxiosResponse<IApiResponse<IChat[]>>> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const { data } = await axios.get(`messages/${room}`);
-				resolve(data);
+				const response = await axios.get(`/chat/${room}`);
+				resolve(response);
 			} catch (err) {
 				reject(err);
 			}
 		});
 	}
 
-	public sendMessage(message: any, gameType: number): void {
-		socketInstance.emit("chat:handle-send-message", {
-			message,
-			room: gameType,
+	public sendMessage(message_body: IChatMessage, room: number): Promise<AxiosResponse<IApiResponse<IChat>>> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const response = await axios.post(`/chat/send/${room}`, message_body);
+				resolve(response);
+			} catch (err) {
+				reject(err);
+			}
 		});
 	}
 }
