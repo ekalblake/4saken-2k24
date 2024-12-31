@@ -9,7 +9,7 @@ import Servers from "@/views/Servers.vue";
 
 import AdminView from "@/views/Admin/AdminView.vue";
 /* import PlayerList from "@/views/Admin/components/PlayerList.vue"; */
-import ServerList from "@/views/Admin/components/ServerList.vue";
+import ServerList from "@/views/Admin/components/ServerListView.vue";
 /* import MapList from "@/views/Admin/components/MapList.vue"; */
 
 import NotFound from "@/views/ErrorView/NotFound.vue";
