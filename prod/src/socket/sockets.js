@@ -19,8 +19,8 @@ export default (server) => {
 			origin: [
 				"http://localhost:5001",
 				"http://localhost:5173",
-				"http://34.205.139.113/",
-				"http://34.205.139.113:5001/",
+				"http://34.205.139.113",
+				"http://34.205.139.113:5001",
 			],
 			methods: ["GET", "POST", "PUT", "DELETE"],
 		},

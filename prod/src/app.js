@@ -16,15 +16,14 @@ app.use(
 		origin: [
 			"http://localhost:5001",
 			"http://localhost:5173",
-			"http://34.205.139.113/",
-			"http://34.205.139.113:5001/",
+			"http://34.205.139.113",
+			"http://34.205.139.113:5001",
 		],
 		methods: ["GET", "POST", "PUT", "DELETE"],
 		credentials: true,
 	}),
 );
 
-const inProd = process.env.NODE_ENV === "production";
 
 let sessionStore = new MySQLStore(database);
 
@@ -36,10 +35,9 @@ app.use(
 		saveUninitialized: false,
 		resave: false,
 		cookie: {
-			maxAge: 604800000,
-			secure: `${inProd ? "true" : "auto"}`,
+			secure: false,
+			maxAge: 365 * 24 * 60 * 60 * 1000,
 			httpOnly: false,
-			sameSite: `${inProd ? "none" : "lax"}`,
 		},
 		expires: true,
 		name: "4saken-session",
