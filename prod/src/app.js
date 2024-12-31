@@ -18,12 +18,13 @@ app.use(
 			"http://localhost:5173",
 			"http://34.205.139.113",
 			"http://34.205.139.113:5001",
+			"http://34.235.215.86",
+			"http://34.235.215.86:5001",
 		],
 		methods: ["GET", "POST", "PUT", "DELETE"],
 		credentials: true,
 	}),
 );
-
 
 let sessionStore = new MySQLStore(database);
 
