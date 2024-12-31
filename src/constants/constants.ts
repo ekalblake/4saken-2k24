@@ -54,32 +54,6 @@ export enum Variables {
 	FORSAKEN = "4SAKEN SUPPORT",
 }
 
-/**
- * TODO: VOLVER VARIABLES DE ENTORNO
- */
+export const API_URL = import.meta.env.VITE_API_URL;
 
-// API URL
-
-export const API_URL =
-	process.env.NODE_ENV === "production" ? "https://forsaken-blk.herokuapp.com" : "http://localhost:5001";
-export const CLIENT_URL = process.env.NODE_ENV === "production" ? "https://4saken.us" : "http://localhost:8080";
-
-//export const GATEWAY_URL
-
-//export const API_URL = 'https://forsaken-blk.herokuapp.com';
-//export const CLIENT_URL = 'https://4saken.us';
-
-export const STEAM_API_KEY = "F4B7214EE1F02F559B1EA7F1BE7D28CB";
-
-/*
-STEAM API
-GAME INFO
-https://developer.valvesoftware.com/wiki/Steam_Web_API#GetNewsForApp_.28v0001.29
-
-STEAM USER STATS:
-https://developer.valvesoftware.com/wiki/Steam_Web_API#GetGlobalAchievementPercentagesForApp_.28v0001.29
-
-STEAM USERS:
-
-
- */
+export const CLIENT_URL = import.meta.env.VITE_CLIENT_URL;

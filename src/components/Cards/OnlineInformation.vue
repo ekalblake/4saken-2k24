@@ -53,52 +53,34 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted } from "vue";
-import { playerService } from "@/services/Player/PlayerService";
 import InformationItemModel from "@/models/Player/InformationItemModel";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
 
 import useSocket from "@/composables/useSocket";
 
 import { useUserStore } from "@/store/userStore";
-import useEmitter from "@/composables/useEmitter";
 
 const userStore = useUserStore();
-
-const emitter = useEmitter();
 
 const socket = useSocket();
 
 const userInfo = computed<PlayerItemModel | null>(() => userStore.userInfo as PlayerItemModel | null);
 
-const onlinePlayers = ref<InformationItemModel | null>(null);
+const onlinePlayers = computed<InformationItemModel | null>(
+	() => userStore.onlineInformation as InformationItemModel | null,
+);
 
 const handleSocketEvents = () => {
 	socket.on("user:connect", (rol: number) => {
-		if (rol == 1 || rol == 3) onlinePlayers.value?.setOnlineUsers();
-
-		if (rol == 2) onlinePlayers.value?.setOnlineAdmins();
+		userStore.userConnect(rol);
 	});
 
 	socket.on("disconnect:user", (userInfo: IPlayer) => {
-		if (userInfo.Rol == 1 || userInfo.Rol == 3) onlinePlayers.value?.removeOnlineUsers();
-
-		if (userInfo.Rol == 2) onlinePlayers.value?.removeOnlineAdmins();
+		userStore.usersDisconnect(userInfo);
 	});
-};
-
-const getOnlineUsers = () => {
-	playerService
-		.getOnlineUsers()
-		.then((response) => {
-			onlinePlayers.value = new InformationItemModel(response.data.data);
-		})
-		.catch((err) => {
-			emitter.emit("alert", err.response.data);
-		});
 };
 
 onMounted(() => {
 	handleSocketEvents();
-	getOnlineUsers();
 });
 </script>

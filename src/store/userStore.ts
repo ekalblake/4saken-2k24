@@ -3,18 +3,21 @@ import { playerService } from "../services/Player/PlayerService";
 import UserItemModel from "../models/Player/PlayerItemModel";
 import useSocket from "../composables/useSocket";
 import { API_URL } from "@/constants/constants";
+import InformationItemModel from "@/models/Player/InformationItemModel";
 
 const socket = useSocket();
 
 interface UserState {
 	userInfo: UserItemModel | null;
 	isSocketConnected: boolean;
+	onlineInformation: InformationItemModel | null;
 }
 
 export const useUserStore = defineStore("user", {
 	state: (): UserState => ({
 		userInfo: null,
 		isSocketConnected: false,
+		onlineInformation: null,
 	}),
 	actions: {
 		async fetchUserInfo() {
@@ -22,6 +25,7 @@ export const useUserStore = defineStore("user", {
 				const response = await playerService.getUser();
 				this.setUserInfo(response.data.data);
 				this.socketConnect();
+				this.getOnlineUsers();
 			} catch (error) {
 				this.removeLocalStorage();
 			}
@@ -45,6 +49,16 @@ export const useUserStore = defineStore("user", {
 				await this.fetchUserInfo();
 			}
 			return !!this.userInfo;
+		},
+		async getOnlineUsers() {
+			playerService
+				.getOnlineUsers()
+				.then((response) => {
+					this.onlineInformation = new InformationItemModel(response.data.data);
+				})
+				.catch((err) => {
+					console.log(err);
+				});
 		},
 		removeLocalStorage() {
 			this.userInfo = null;
@@ -129,6 +143,16 @@ export const useUserStore = defineStore("user", {
 				clearInterval(socket.pingInterval);
 				socket.pingInterval = null;
 			}
+		},
+		userConnect(rol: number) {
+			if (rol == 1 || rol == 3) this.onlineInformation?.setOnlineUsers();
+
+			if (rol == 2) this.onlineInformation?.setOnlineAdmins();
+		},
+		usersDisconnect(userInfo: IPlayer) {
+			if (userInfo.Rol == 1 || userInfo.Rol == 3) this.onlineInformation?.removeOnlineUsers();
+
+			if (userInfo.Rol == 2) this.onlineInformation?.removeOnlineAdmins();
 		},
 	},
 	getters: {
