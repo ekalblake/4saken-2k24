@@ -1,5 +1,5 @@
 <template>
-	<v-card class="bgc_cards text-white overflow-auto" max-height="1000" min-width="650" height="auto">
+	<v-card class="bgc_cards text-white overflow-auto" max-height="555" width="750" height="auto">
 		<div v-if="isLoading" class="progressbar_center">
 			<v-progress-circular indeterminate color="primary" />
 		</div>
@@ -33,7 +33,7 @@
 			</div>
 		</template>
 	</v-card>
-	<v-card class="bgc_cards text-white overflow-auto my-3" max-height="250" max-width="700">
+	<v-card class="bgc_cards text-white overflow-auto my-3" max-height="250" width="750">
 		<v-card-text v-if="userTyping != ''">
 			<p>{{ userTyping }}</p>
 		</v-card-text>

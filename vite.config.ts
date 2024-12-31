@@ -1,12 +1,23 @@
 import { defineConfig } from "vite";
+
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+
 import vue from "@vitejs/plugin-vue";
-import { resolve } from "path";
+import { fileURLToPath } from "url";
 
 export default defineConfig({
-	plugins: [vue()],
+	base: "./",
+	publicDir: "public",
+
+	plugins: [
+		vue({
+			template: { transformAssetUrls },
+		}),
+		vuetify(),
+	],
 	resolve: {
 		alias: {
-			"@": resolve(__dirname, "src"), // Define el alias @ para el directorio src
+			"@": fileURLToPath(new URL("./src", import.meta.url)),
 		},
 	},
 });

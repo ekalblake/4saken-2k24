@@ -95,6 +95,7 @@ const joinGame = (ip: string): void => {
 };
 
 try {
+	//@ts-ignore
 	const response = await playerService.getServerListPublic();
 	serverList.value = new ServerInfoModel(response.data.data);
 	loading.value = false;

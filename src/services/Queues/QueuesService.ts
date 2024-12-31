@@ -1,9 +1,6 @@
 import axios from "../axios";
 import { AxiosResponse } from "axios";
 
-import useSocket from "@/composables/useSocket";
-
-const socketInstance = useSocket();
 export class QueuesService {
 	public joinQueue(room: number): Promise<AxiosResponse<IApiResponse<IUserWeb>>> {
 		return new Promise(async (resolve, reject) => {

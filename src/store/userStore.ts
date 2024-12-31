@@ -93,7 +93,7 @@ export const useUserStore = defineStore("user", {
 				const startTime = Date.now();
 				socket.emit("ping:check", () => {
 					const latency = Date.now() - startTime;
-					/* console.log(`Latencia: ${latency} ms`); */
+					console.log(`Latencia: ${latency} ms`);
 				});
 			}, 5000);
 
@@ -124,25 +124,6 @@ export const useUserStore = defineStore("user", {
 				console.error("Reconexión fallida. No se pudo establecer conexión con el servidor.");
 				this.isSocketConnected = false;
 			});
-			// Medir latencia cada 5 segundos
-			this.startPingInterval();
-		},
-		startPingInterval() {
-			if (socket.pingInterval) return; // Evitar intervalos múltiples
-
-			socket.pingInterval = setInterval(() => {
-				const startTime = Date.now();
-				socket.emit("ping:check", () => {
-					const latency = Date.now() - startTime;
-					console.log(`Latencia: ${latency} ms`);
-				});
-			}, 5000);
-		},
-		stopPingInterval() {
-			if (socket.pingInterval) {
-				clearInterval(socket.pingInterval);
-				socket.pingInterval = null;
-			}
 		},
 		userConnect(rol: number) {
 			if (rol == 1 || rol == 3) this.onlineInformation?.setOnlineUsers();

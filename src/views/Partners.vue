@@ -1,13 +1,7 @@
 <template>
-  <v-container class="d-flex justify-center align-center">
-    <v-img
-        max-height="100%"
-        max-width="750px"
-        src="@/assets/comingsoon.png"
-    >
-
-    </v-img>
-    <!--<h1 class="partner_title pa-5" >
+	<v-container class="d-flex justify-center align-center">
+		<v-img max-height="100%" max-width="750px" src="@/assets/comingsoon.png"> </v-img>
+		<!--<h1 class="partner_title pa-5" >
       PARTNERS
     </h1>
     <v-row>
@@ -113,52 +107,38 @@
         </v-card>
       </v-col>
     </v-row>-->
-  </v-container>
+	</v-container>
 </template>
-<script lang="ts">
-import { Ref, ref, defineComponent, onMounted } from "vue";
-
-
-
-export default defineComponent({
-  name: 'App',
-
-  setup(){
-
-    return{
-    }
-  },
-});
-</script>
+<script lang="ts"></script>
 <style scoped>
-.bgc1{
-  background: rgba(56, 52, 52, 0.3) !important;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  border-color: #ef4242;
-  box-shadow: 0 0 10px #c20606;
+.bgc1 {
+	background: rgba(56, 52, 52, 0.3) !important;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	border-color: #ef4242;
+	box-shadow: 0 0 10px #c20606;
 }
-.bgc2{
-  background: rgba(56, 52, 52, 0.3) !important;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+.bgc2 {
+	background: rgba(56, 52, 52, 0.3) !important;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
 }
-.singular{
-  background: rgba(17, 17, 23, 0.5) !important;
-  font-size: 20px;
-  color: white !important;
-  outline: none;
-  border-color: #ef4242 !important;
-  box-shadow: 0 0 10px #c20606 !important;
-  padding: 10px;
-  margin: 10px;
+.singular {
+	background: rgba(17, 17, 23, 0.5) !important;
+	font-size: 20px;
+	color: white !important;
+	outline: none;
+	border-color: #ef4242 !important;
+	box-shadow: 0 0 10px #c20606 !important;
+	padding: 10px;
+	margin: 10px;
 }
 
-.partner_title{
-  text-transform: uppercase;
-  color: #a82424;
-  font-weight: 500;
+.partner_title {
+	text-transform: uppercase;
+	color: #a82424;
+	font-weight: 500;
 }
 </style>

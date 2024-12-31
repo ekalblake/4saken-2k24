@@ -266,7 +266,6 @@ export const matchStatus = async (req, res) => {
 
 		const ipPort = `${ip}:${port}`;
 
-		console.log(ipPort);
 
 		const getMatchStatus = await pool.query(
 			`SELECT 
@@ -328,7 +327,6 @@ export const getMatchInfo = async (req, res) => {
 		const { ip, port } = req.query;
 
 		const ipPort = `${ip}:${port}`;
-		console.log(ipPort);
 		const getMatchStatus = await pool.query(
 			`SELECT
                                                                  queueid,

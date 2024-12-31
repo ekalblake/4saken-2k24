@@ -120,11 +120,15 @@ export const queueEvents = (socket, io, userInfo) => {
 			party_id: userInfo.party_id,
 		};
 
-		queueArray.push(jugador);
+		const player = queueArray.find((p) => p.UserID === userInfo.UserID);
 
-		io.to(room).emit("queue:player-joined", jugador);
+		if (!player) {
+			queueArray.push(jugador);
 
-		/* const player = queueArray.find((p) => p.UserID === userInfo.UserID);
+			io.to(room).emit("queue:player-joined", jugador);
+		}
+
+		/* 
 
 		const potentialMatches = findPotentialMatches(player);
 

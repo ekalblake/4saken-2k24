@@ -33,7 +33,7 @@
 												width="25"
 												height="25"
 												:alt="queue.getMmrName()"
-												:src="`src/assets/ranked_medals/${queue.getMmrImage()}`"
+												:src="queue.getMmrImage()"
 											/>
 										</span>
 									</template>
@@ -44,23 +44,12 @@
 								</v-tooltip>
 							</template>
 							<template v-slot:default>
-								<v-card-text
-									class="text-center"
-									:style="{
-										color: queue.getColorChat(),
-										textShadow: '0 0 10px ' + queue.getGlowColor(),
-										fontWeight: 'bold',
-									}"
-								>
+								<v-card-text class="text-center" :style="queue.getColorChatStyle()">
 									{{ queue.getPersonaName().substring(0, 19) }}
 								</v-card-text>
 							</template>
 							<template v-slot:append>
-								<v-avatar
-									tile
-									size="25"
-									:style="'box-shadow: 0px 0px 5px' + queue.getColorChat() + ';'"
-								>
+								<v-avatar tile size="25" :style="queue.getBackgroundColor()">
 									<img alt="Profile Pic" height="30" :src="queue.getAvatarFull()" />
 								</v-avatar>
 							</template>

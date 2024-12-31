@@ -24,12 +24,6 @@
 		"noUnusedParameters": true,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": [
-		"src/**/*.ts",
-		"src/**/*.tsx",
-		"src/**/*.vue",
-		"src/**/*",
-		"types/**/*"
-	],
+	"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*", "types/**/*"],
 	"exclude": ["node_modules", "dist"]
 }

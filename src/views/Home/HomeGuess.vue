@@ -13,7 +13,7 @@
 						<v-img
 							class="cursor-pointer"
 							@click="steamLogin()"
-							src="src/assets/sign-in.png"
+							src="@/assets/sign-in.png"
 							max-width="200"
 							max-height="200"
 							contain
@@ -28,7 +28,7 @@
 				<v-col cols="12" sm="12" md="7" lg="7">
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img height="70" src="src/assets/matchup/matchmaking.png" />
+							<v-img height="70" src="@/assets/matchup/matchmaking.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
 							<v-card-subtitle class="text-uppercase font-weight-bold">
@@ -42,7 +42,7 @@
 					<v-divider class="pa-2"></v-divider>
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img height="70" src="src/assets/matchup/versus.png" />
+							<v-img height="70" src="@/assets/matchup/versus.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
 							<v-card-subtitle class="text-uppercase font-weight-bold">
@@ -57,7 +57,7 @@
 
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img height="70" src="src/assets/matchup/progress.png" />
+							<v-img height="70" src="@/assets/matchup/progress.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
 							<v-card-subtitle class="text-uppercase font-weight-bold pb-0">
@@ -72,7 +72,7 @@
 
 					<v-row no-gutters>
 						<v-col md="3" cols="2">
-							<v-img height="70" src="src/assets/matchup/tournaments.png" />
+							<v-img height="70" src="@/assets/matchup/tournaments.png" />
 						</v-col>
 						<v-col md="9" cols="10" class="text-left">
 							<v-card-subtitle class="text-uppercase font-weight-bold pb-0">

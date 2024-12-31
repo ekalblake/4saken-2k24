@@ -88,14 +88,14 @@ export const fetchUserInformation = async (steamid) => {
 					WHEN users_mmr.GamesPlayed < 8 THEN 0
 					ELSE users_mmr.Rating
 			END AS Rating,
-			users_mmr.GamesPlayed,
+			users_mmr.GamesPlayed as GamesPlayed,
 			users_mmr.LastGame,
 			users_mmr.Wins,
 			CASE
 					WHEN duel_mmr.GamesPlayed < 8 THEN 0
 					ELSE duel_mmr.Rating
 			END AS RatingDuel,
-			duel_mmr.GamesPlayed,
+			duel_mmr.GamesPlayed as DuoGamesPlayed,
 			duel_mmr.LastGame,
 			duel_mmr.Wins
 			FROM users_general
@@ -376,8 +376,6 @@ export const dropParty = async (userid, party_id) => {
 		`,
 		[party_id],
 	);
-
-	console.log(getPartyUsers);
 
 	await pool.query(
 		`

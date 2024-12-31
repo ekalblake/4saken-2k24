@@ -137,8 +137,6 @@ export const joinParty = async (req, res) => {
 	try {
 		const partyId = await findPartyId(party_code);
 
-		console.log(partyId);
-
 		if (!partyId) {
 			Logger.error(USER_MESSAGES.USER_PARTY_JOIN_NOT_FOUND, null, req);
 			return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_PARTY_JOIN_NOT_FOUND);
@@ -346,6 +344,7 @@ export const getUserMmr = async (req, res) => {
 		Logger.response(req, res);
 		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, getUserMmr, USER_MESSAGES.USER_CONFIG_SUCCESSFUL);
 	} catch (err) {
-		console.log(err);
+		Logger.error(USER_MESSAGES.USER_MMR_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_MMR_GENERAL_ERROR);
 	}
 };

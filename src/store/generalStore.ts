@@ -1,7 +1,5 @@
 import { defineStore } from "pinia";
 
-import { GameID, GameLink } from "../constants/constants";
-
 interface UserState {
 	currentGameId: number;
 }

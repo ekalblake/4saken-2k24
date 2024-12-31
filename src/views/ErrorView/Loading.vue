@@ -1,6 +1,6 @@
 <template>
 	<v-col cols="12" class="loading-center bg-fs-primary bgc-opacity-30" :style="{ 'min-height': setMinHeight }">
-		<v-img class="loading-image" src="src/assets/logos/LOGOCONNECT@112.png" width="100" />
+		<v-img class="loading-image" src="@/assets/logos/LOGOCONNECT@112.png" width="100" />
 		<h4 class="text-white">
 			<slot></slot>
 		</h4>

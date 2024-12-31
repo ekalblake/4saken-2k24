@@ -36,14 +36,14 @@
 					class="d-flex justify-end ga-2"
 				>
 					<v-avatar class="cursor-pointer" @click="openLink('https://discord.gg/GFasRy4wd4')" size="50">
-						<v-img width="auto" src="src/assets/social/discord.png"></v-img>
+						<v-img width="auto" src="@/assets/social/discord.png"></v-img>
 					</v-avatar>
 					<v-avatar
 						class="cursor-pointer"
 						@click="openLink('https://steamcommunity.com/groups/4sakenus')"
 						size="50"
 					>
-						<v-img width="auto" src="src/assets/social/steam.png"></v-img>
+						<v-img width="auto" src="@/assets/social/steam.png"></v-img>
 					</v-avatar>
 				</v-col> -->
 			</v-row>
@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import InformationItemModel from "@/models/Player/InformationItemModel";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
 

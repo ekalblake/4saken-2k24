@@ -95,7 +95,6 @@ const serverObj = reactive<{ ip: string; extra: string; port: number }>({
 const getServerList = async () => {
 	adminService.getServerList().then((response) => {
 		serverList.value = new ServerModel(response.data.data);
-		console.log(serverList.value);
 	});
 };
 

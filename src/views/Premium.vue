@@ -1,6 +1,5 @@
 <template>
-     <v-container>
-          <!--Titulo y descripción-->
+	<!-- <v-container>
           <v-row>
                <v-col
                     cols="12"
@@ -33,7 +32,6 @@
                          </div>  
                </v-col>
           </v-row>
-          <!--Beneficios-->
           <v-row>
                <v-col
                     cols="12"
@@ -171,7 +169,6 @@
                     </v-card>
                </v-col>
           </v-row>
-          <!--Titulo y descripción-->
           <v-row>
                <v-col
                     cols="12"
@@ -184,7 +181,6 @@
                          </v-card-text>  
                </v-col>
           </v-row>
-          <!--Tarjetas de Precio-->
           <v-row>
                <v-col
                     md="4"
@@ -350,10 +346,10 @@
                     </v-card-text>
                </v-card>
           </v-dialog>
-     </v-container>
+     </v-container> -->
 </template>
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+/* import { defineComponent, ref, computed, onMounted } from "vue";
 
 import axios from 'axios'
 
@@ -405,52 +401,52 @@ export default defineComponent({
                selectPayment
           }
      }
-})
+}) */
 </script>
 <style>
 .premium_types {
-     display: flex; 
-     align-items: center;
-     background: rgba(17, 17, 23, 0.5) !important; 
-     box-shadow: 0 0 10px #910000 !important;
-     text-align: center; 
+	display: flex;
+	align-items: center;
+	background: rgba(17, 17, 23, 0.5) !important;
+	box-shadow: 0 0 10px #910000 !important;
+	text-align: center;
 }
-.premium_prices{  
-     display:grid;   
-     padding: 15px; 
-     background: rgba(17, 17, 23, 0.5) !important; 
-     box-shadow: 0 0 10px #910000 !important; 
-     min-width: 400px;
-     min-height:275px;
+.premium_prices {
+	display: grid;
+	padding: 15px;
+	background: rgba(17, 17, 23, 0.5) !important;
+	box-shadow: 0 0 10px #910000 !important;
+	min-width: 400px;
+	min-height: 275px;
 }
-.premium_button { 
-     border-radius: 10px;
-     background-color: #6d0808 !important;
-     color: #fff !important; 
+.premium_button {
+	border-radius: 10px;
+	background-color: #6d0808 !important;
+	color: #fff !important;
 }
-.premium_button_gift{ 
-     border-radius: 10px;
-     background-color: #6d0808 !important;
-     color: #fff !important;   
+.premium_button_gift {
+	border-radius: 10px;
+	background-color: #6d0808 !important;
+	color: #fff !important;
 }
 .premium_month {
-     position: absolute;
-     justify-content: right;
-     border-radius: 10px;
-     background-color: #910000 !important; 
-     text-decoration: none;
-     padding: 6px !important;  
+	position: absolute;
+	justify-content: right;
+	border-radius: 10px;
+	background-color: #910000 !important;
+	text-decoration: none;
+	padding: 6px !important;
 }
-.div_content{
-     display:grid;
-     align-content: center;
-     line-height:0.6;
+.div_content {
+	display: grid;
+	align-content: center;
+	line-height: 0.6;
 }
 
 .premium_dialog {
-    background: rgba(17, 17, 23, 0.8) !important;
-    border-color: #ef4242 !important;
-    box-shadow: 0 0 10px #910000 !important; 
-    min-width: 250px
+	background: rgba(17, 17, 23, 0.8) !important;
+	border-color: #ef4242 !important;
+	box-shadow: 0 0 10px #910000 !important;
+	min-width: 250px;
 }
 </style>

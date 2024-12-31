@@ -35,7 +35,6 @@ export const reserveIp = async () => {
 
 	let checkActiveServer = null;
 
-	console.log(getServers);
 	for (let server of getServers) {
 		try {
 			const data = await serverAvailabilityService(server.ip, server.port);

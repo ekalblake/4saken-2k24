@@ -61,7 +61,7 @@ const socketInstance = useSocket();
 
 const getPathGame = ref<number>(2);
 
-const gameUser = ref<QueueGamesItemModel | null>(null);
+const gameUser = ref<any>(null);
 
 const socketEvents = () => {
 	socketInstance.emit("room:join-room-emit", getPathGame.value);

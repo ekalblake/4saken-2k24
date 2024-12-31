@@ -238,7 +238,6 @@ const dropQueueParty = () => {
 	queuesService
 		.dropPartyQueue(partyInfo.value.getParty().getPartyId())
 		.then((response) => {
-			console.log(response);
 			socket.emit("queue:party-drop-queue", {
 				room: props.gameType,
 				members_id: response.data.data.members_id,
@@ -271,7 +270,6 @@ const dropQueue = () => {
 			emitter.emit("alert", response.data);
 		})
 		.catch((err) => {
-			console.log(err);
 			emitter.emit("alert", err.response.data);
 		});
 };
@@ -346,7 +344,7 @@ const getPlayerInfo = (index: number): any => {
 			};
 		}
 		return {
-			avatar: "src/assets/question_mark.jpg",
+			avatar: "/assets/general/question_mark.jpg",
 			name: "Esperando jugador...",
 			glowColor: "box-shadow: 0px 0px 5px #D9D9D9;",
 			colorChat: "#D9D9D9",

@@ -12,7 +12,7 @@
 						</h6>
 					</v-card-text>
 					<div class="d-flex justify-center">
-						<v-img width="auto" height="300" src="src/assets/types/TYPE_RANKED.png"> </v-img>
+						<v-img width="auto" height="300" src="@/assets/types/TYPE_RANKED.png"> </v-img>
 					</div>
 					<v-card-text class="text-white text-h6 font-weight-bold">
 						{{ t("subtitle_2") }}

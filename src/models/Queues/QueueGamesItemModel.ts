@@ -133,7 +133,6 @@ export default class QueueGamesItemModel {
 			5000: QueueNameImages.QUEUE_VETERAN_LOGO,
 		};
 
-		console.log(this.mmr_average);
 		if (this.mmr_average <= 3000) {
 			return mmrQueue[0];
 		} else if (this.mmr_average <= 5000) {

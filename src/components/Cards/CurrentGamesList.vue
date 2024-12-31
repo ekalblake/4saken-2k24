@@ -1,6 +1,5 @@
 <template>
-	<template v-if="!currentGames"> ... </template>
-	<template v-else>
+	<template v-if="currentGames">
 		<v-card
 			v-if="userInfo"
 			class="game_card bgc_cards rounded-lg h-75"
@@ -15,7 +14,7 @@
 				</v-card-title>
 			</v-card-item>
 			<v-card-text>
-				<template v-for="(current, i) in currentGames.getQueueGames()" :key="i">
+				<template v-for="current in currentGames.getQueueGames()">
 					<v-card :style="userInfo?.getBoxShadow()" class="bgc_cards mb-3" height="auto">
 						<v-row class="py-2">
 							<v-col md="4" cols="12">
@@ -74,7 +73,7 @@
 										class="mx-auto"
 										width="auto"
 										height="50"
-										:src="`src/assets/new_ranked/${current.getRankImage()}`"
+										:src="`/assets/new_ranked/${current.getRankImage()}`"
 									>
 									</v-img>
 									<p>{{ current.getGameStarted() }}</p>

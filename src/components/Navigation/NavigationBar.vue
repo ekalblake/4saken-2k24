@@ -19,7 +19,7 @@
 		</template>
 		<v-spacer></v-spacer>
 		<RouterLink class="d-none d-md-block" to="/">
-			<v-img height="30" width="auto" src="src/assets/logos/LOGO CONNECT@56.png" />
+			<v-img height="30" width="auto" src="@/assets/logos/LOGOCONNECT@56.png" />
 		</RouterLink>
 		<v-spacer />
 		<template v-if="!userInfo">

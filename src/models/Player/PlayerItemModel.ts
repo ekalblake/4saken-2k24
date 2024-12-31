@@ -153,9 +153,7 @@ export default class PlayerItemModel {
 			}
 		}
 
-		return this.getGamesPlayed() < 8
-			? "src/assets/ranked_medals/NO_RANKED.png"
-			: `src/assets/ranked_medals/${mmrImage}`;
+		return this.getGamesPlayed() < 8 ? "/assets/ranked_medals/NO_RANKED.png" : `/assets/ranked_medals/${mmrImage}`;
 	}
 
 	public getMmrName(): string {

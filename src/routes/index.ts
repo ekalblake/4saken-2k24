@@ -8,9 +8,9 @@ import Faq from "@/views/Faq.vue";
 import Servers from "@/views/Servers.vue";
 
 import AdminView from "@/views/Admin/AdminView.vue";
-/* import PlayerList from "@/views/Admin/components/PlayerList.vue"; */
-import ServerList from "@/views/Admin/components/ServerListView.vue";
-/* import MapList from "@/views/Admin/components/MapList.vue"; */
+import PlayerListView from "@/views/Admin/components/PlayerListView.vue";
+import ServerListView from "@/views/Admin/components/ServerListView.vue";
+import MapListView from "@/views/Admin/components/MapListView.vue";
 
 import NotFound from "@/views/ErrorView/NotFound.vue";
 
@@ -79,21 +79,21 @@ const routes: Array<RouteRecordRaw> = [
 			is_admin: true,
 		},
 		children: [
-			/* {
+			{
 				path: "/admin/players",
 				name: WebPages.ADMIN_PLAYERS,
-				component: PlayerList,
-			}, */
+				component: PlayerListView,
+			},
 			{
 				path: "/admin/servers",
 				name: WebPages.ADMIN_SERVERS,
-				component: ServerList,
+				component: ServerListView,
 			},
-			/* {
+			{
 				path: "/admin/maps",
 				name: WebPages.ADMIN_MAPS,
-				component: MapList,
-			}, */
+				component: MapListView,
+			},
 		],
 	},
 	{
@@ -115,7 +115,7 @@ router.beforeEach(async (to, from, next) => {
 
 	if (to.matched.some((record) => record.meta.requiresAuth)) {
 		if (!isAuthenticated) {
-			next({ name: WebPages.HOME });
+			next({ name: WebPages.HOME, query: { redirect: from.fullPath } });
 		} else {
 			const verifyAdmin = userStore.getUserInfo?.getRol();
 

@@ -42,7 +42,7 @@
 								{{ item.getPersonaName() }}
 							</span>
 						</template>
-						<template v-slot:item.report="{ item }">
+						<template v-slot:item.report>
 							<v-btn class="bg-primary" @click="reportPlayer()"> Reportar </v-btn>
 						</template>
 						<template v-slot:item.Rating="{ item }">
