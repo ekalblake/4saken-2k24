@@ -11,6 +11,7 @@ interface UserState {
 	userInfo: UserItemModel | null;
 	isSocketConnected: boolean;
 	onlineInformation: InformationItemModel | null;
+	audio: number;
 }
 
 export const useUserStore = defineStore("user", {
@@ -18,9 +19,12 @@ export const useUserStore = defineStore("user", {
 		userInfo: null,
 		isSocketConnected: false,
 		onlineInformation: null,
+		audio: 0,
 	}),
 	actions: {
 		async fetchUserInfo() {
+			this.audio = Number(localStorage.getItem("volumen")) || 50;
+
 			try {
 				const response = await playerService.getUser();
 				this.setUserInfo(response.data.data);
@@ -43,6 +47,9 @@ export const useUserStore = defineStore("user", {
 			localStorage.removeItem("user");
 
 			window.open(API_URL + "/auth/logout", "_self");
+		},
+		updateVolume(level: number) {
+			localStorage.setItem("volumen", String(level));
 		},
 		async checkAuthentication() {
 			if (!this.userInfo) {

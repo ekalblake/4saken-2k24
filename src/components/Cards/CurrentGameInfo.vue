@@ -45,7 +45,7 @@
 				<v-card-text>
 					<v-img
 						class="mx-auto"
-						:src="`src/assets/maps/${currentGame.getMapImage()}`"
+						:src="`/assets/maps/${currentGame.getMapImage()}`"
 						width="auto"
 						height="100"
 					/>

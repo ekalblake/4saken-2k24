@@ -1,5 +1,6 @@
 <template>
 	<v-app>
+		<MatchFound />
 		<NavigationBar />
 		<v-main class="content h-100">
 			<router-view :key="route.fullPath" />
@@ -14,13 +15,41 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import NavigationBar from "@/components/Navigation/NavigationBar.vue";
 import FooterCard from "@/components/Cards/FooterCard.vue";
 import NotificactionComponent from "@/components/Extras/NotificactionComponent.vue";
+import MatchFound from "@/components/Cards/Items/MatchFound.vue";
 
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+
+const notificationPermissions = () => {
+	document.addEventListener("DOMContentLoaded", () => {
+		const notificationPermissionRequested = localStorage.getItem("notificationPermissionRequested");
+
+		if (!notificationPermissionRequested) {
+			if ("Notification" in window) {
+				Notification.requestPermission().then((permission) => {
+					localStorage.setItem("notificationPermissionRequested", "true");
+
+					if (permission === "granted") {
+						console.log("Permiso de notificaciones concedido.");
+					} else {
+						console.log("Permiso de notificaciones denegado.");
+					}
+				});
+			} else {
+				console.log("El navegador no soporta notificaciones.");
+			}
+		}
+	});
+};
+
+onMounted(() => {
+	notificationPermissions();
+});
 </script>
 <style>
 @import "./style.css";

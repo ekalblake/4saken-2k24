@@ -28,6 +28,9 @@
 				>
 					<p>Estás apoyando a 4SAKEN.US, ganas mejoras!</p>
 				</v-col>
+				<v-col offset="3">
+					<v-slider :value="currentVolume" @end="updateVolume" color="white" hide-details> </v-slider>
+				</v-col>
 				<!-- <v-col
 					:md="userInfo?.getIsSupporting() ? '2' : '2'"
 					:cols="userInfo?.getIsSupporting() ? '3' : '3'"
@@ -65,6 +68,20 @@ const userStore = useUserStore();
 const socket = useSocket();
 
 const userInfo = computed<PlayerItemModel | null>(() => userStore.userInfo as PlayerItemModel | null);
+
+const currentVolume = computed(() => userStore.audio);
+
+const updateVolume = (event: number) => {
+	const scaledVolume = (event * (1 - 0.1)) / (100 - 0) + 0.1;
+
+	userStore.updateVolume(scaledVolume);
+
+	const audio = new Audio("/assets/audio/helpful_event_1.wav");
+
+	audio.volume = scaledVolume;
+
+	audio.play();
+};
 
 const onlinePlayers = computed<InformationItemModel | null>(
 	() => userStore.onlineInformation as InformationItemModel | null,
