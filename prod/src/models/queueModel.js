@@ -141,10 +141,40 @@ export const getQueueListByGame = async (gameType) => {
 			users_web.timecreated,
 			users_permisions.Rol,
 			users_permisions.IsPremium,
-			users_mmr.Rating,
 			users_mmr.GamesPlayed,
+			duel_mmr.GamesPlayed as GamesPlayedDuel,
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
 			users_mmr.LastGame,
-			users_mmr.Wins
+			users_mmr.Wins,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					RatingDuel,
+			duel_mmr.LastGame,
+			duel_mmr.Wins
 		FROM 
 			l4d2_queue
 		JOIN 

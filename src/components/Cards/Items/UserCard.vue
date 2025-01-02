@@ -1,6 +1,14 @@
 <template>
 	<v-card :min-width="minWidth" v-if="userCard" class="text-center pa-2 bg-fs-primary text-white" tile>
-		<v-img class="mx-auto" width="auto" height="150px" :src="userCard.getAvatarFull()"> </v-img>
+		<v-img
+			:style="userCard.getColorStyle()"
+			class="mx-auto"
+			cover
+			width="auto"
+			height="150px"
+			:src="userCard.getAvatarFull()"
+		>
+		</v-img>
 		<v-card-title>
 			{{ userCard.getPersonaName() }}
 		</v-card-title>

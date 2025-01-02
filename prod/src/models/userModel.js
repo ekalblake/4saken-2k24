@@ -125,22 +125,40 @@ export const onlineUserList = async () => {
 			users_web.profileurl,
 			users_web.colorChat,
 			users_web.glowColor,
-			users_mmr.GamesPlayed,
+			users_mmr.GamesPlayed as GamesPlayed,
 			duel_mmr.GamesPlayed as GamesPlayedDuel,
-		CASE
-			WHEN 
-				users_mmr.GamesPlayed < 8 THEN 0
-			ELSE 
-				users_mmr.Rating
-			END AS 
-				Rating,
-		CASE
-			WHEN 
-				users_mmr.GamesPlayed < 8 THEN 0
-			ELSE 
-				users_mmr.Rating
-			END AS 
-				Rating
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
+			users_mmr.LastGame,
+			users_mmr.Wins,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					RatingDuel,
+			duel_mmr.LastGame,
+			duel_mmr.Wins
 		FROM 
 			users_general
 		INNER JOIN 

@@ -18,12 +18,38 @@ export const getMessageList = async (room) => {
 			users_web.glowColor,
 			users_permisions.Rol,
 			users_permisions.IsPremium,
-			users_mmr.Rating,
 			users_mmr.GamesPlayed,
+			duel_mmr.GamesPlayed as GamesPlayedDuel,
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					users_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					users_mmr.Rating
+				END AS 
+					Rating,
 			users_mmr.LastGame,
 			users_mmr.Wins,
-			duel_mmr.Rating,
-			duel_mmr.GamesPlayed,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					Rating,
+			CASE
+				WHEN 
+					duel_mmr.GamesPlayed < 8 THEN 0
+				ELSE 
+					duel_mmr.Rating
+				END AS 
+					RatingDuel,
 			duel_mmr.LastGame,
 			duel_mmr.Wins
 		FROM 
