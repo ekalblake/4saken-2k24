@@ -1,5 +1,4 @@
-import pool from "../database.js";
-import errors, { responseError, sendResponse, sendResponseObj } from "../utils/errors.js";
+import errors, { sendResponse } from "../utils/errors.js";
 import { HTTP_STATUS } from "../config.js";
 
 import {
@@ -16,7 +15,6 @@ import {
 	newParty,
 	onlineUserList,
 	updateConfig,
-	updateRegionUser,
 	verifyParty,
 	verifyPartyMembers,
 } from "../models/userModel.js";
@@ -346,5 +344,18 @@ export const getUserMmr = async (req, res) => {
 	} catch (err) {
 		Logger.error(USER_MESSAGES.USER_MMR_GENERAL_ERROR, err, req);
 		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_MMR_GENERAL_ERROR);
+	}
+};
+
+export const uploadFiles = async (req, res) => {
+	Logger.request(req);
+	try {
+		const file = req.file;
+
+		Logger.response(req, res);
+		return sendResponse(res, HTTP_STATUS.SUCCESSFUL, file, USER_MESSAGES.USER_FILES_UPLOAD_SUCCESSFUL);
+	} catch (err) {
+		Logger.error(USER_MESSAGES.USER_FILES_GENERAL_ERROR, err, req);
+		return sendResponse(res, HTTP_STATUS.BAD_REQUEST, null, USER_MESSAGES.USER_FILES_GENERAL_ERROR);
 	}
 };

@@ -33,7 +33,7 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
 	Logger.request(req);
 	try {
-		const { message_body } = req.body;
+		const { message_type, message_data } = req.body;
 
 		const { room } = req.params;
 
@@ -55,7 +55,7 @@ export const sendMessage = async (req, res) => {
 
 		let unixTimestamp = Math.floor(Date.now() / 1000);
 
-		const response = await addMessage(userid, message_body, room, unixTimestamp);
+		const response = await addMessage(userid, message_type, JSON.stringify(message_data), room, unixTimestamp);
 
 		req.session.sendTime = Math.floor(new Date().getTime() / 1000) + 2;
 

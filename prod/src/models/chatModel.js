@@ -1,5 +1,4 @@
 import pool from "../database.js";
-import { sqlResponse } from "../utils/errors.js";
 
 export const getMessageList = async (room) => {
 	const chatList = await pool.query(
@@ -7,6 +6,9 @@ export const getMessageList = async (room) => {
 		SELECT 
 			chat_room.chatid,
 			chat_room.message_body,
+			chat_room.message_data,
+			chat_room.message_type,
+			chat_room.parentid,
 			chat_room.room,
 			chat_room.created_at,
 			users_web.avatarfull,
@@ -47,13 +49,13 @@ export const getMessageList = async (room) => {
 	return chatList;
 };
 
-export const addMessage = async (userid, message_body, room, unixTimestamp) => {
+export const addMessage = async (userid, message_type, message_data, room, unixTimestamp) => {
 	const newMessage = await pool.query(
 		`
 			INSERT INTO 
-				chat_room (userid, message_body, room, created_at)
-			VALUES (?, ?, ?,?)`,
-		[userid, message_body, room, unixTimestamp],
+				chat_room (userid, message_type, message_data, room, created_at)
+			VALUES (?, ?, ?, ?, ?)`,
+		[userid, message_type, message_data, room, unixTimestamp],
 	);
 
 	const [getMessage] = await pool.query(
@@ -63,6 +65,9 @@ export const addMessage = async (userid, message_body, room, unixTimestamp) => {
 			users_general.SteamID64,
 			chat_room.chatid, 
 			chat_room.message_body,
+			chat_room.message_type,
+			chat_room.message_data,
+			chat_room.parentid,
 			chat_room.created_at,
 			users_web.avatarfull,
 			users_web.personaname,

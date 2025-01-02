@@ -16,7 +16,10 @@ import {
 	deleteParty,
 	checkCurrentGame,
 	getServerListPublic,
+	uploadFiles,
 } from "../controllers/user.controller.js";
+
+import uploadMiddleware from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -26,6 +29,7 @@ router
 	.put("/update-region", isAuthorized, updateRegion)
 	.post("/party/create-party", createParty)
 	.post("/party/join-party", joinParty)
+	.post("/upload", uploadMiddleware.single("files"), uploadFiles)
 	.get("/party/verify-party-status", checkParty)
 	.delete("/party/drop-party/:party_id", removePartyMember)
 	.delete("/party/drop-party-room/:party_id", deleteParty)

@@ -18,6 +18,7 @@ prod/node_modules
 prod/dist
 prod/build
 prod/.env
+prod/media
 
 # Editor directories and files
 .vscode/*

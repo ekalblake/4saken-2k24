@@ -44,7 +44,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 import OnlineInformation from "@/components/Cards/OnlineInformation.vue";
 import QueueBox from "@/components/Cards/QueueBox.vue";
-import ChatBox from "@/components/Cards/ChatBox.vue";
+import ChatBox from "@/components/Cards/Chat/ChatBox.vue";
 import UserNavigation from "@/components/Cards/UserNavigation.vue";
 import CurrentGameInfo from "@/components/Cards/CurrentGameInfo.vue";
 import CurrentGamesList from "@/components/Cards/CurrentGamesList.vue";

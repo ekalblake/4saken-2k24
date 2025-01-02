@@ -7,6 +7,10 @@ import session from "express-session";
 import MySQLStore from "express-mysql-session";
 import { database } from "./keys.js";
 
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import path from "path";
+
 import * as strategy from "./strategies/steamStrategy.js";
 
 var app = express();
@@ -27,6 +31,14 @@ app.use(
 );
 
 let sessionStore = new MySQLStore(database);
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = dirname(__filename);
+
+const MediaPath = path.join(__dirname, "..", "media");
+
+app.use("/media", express.static(MediaPath));
 
 app.enable("trust proxy", true);
 

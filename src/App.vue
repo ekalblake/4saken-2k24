@@ -12,6 +12,7 @@
           /> -->
 	</v-app>
 	<NotificactionComponent />
+	<OpenImageView />
 </template>
 
 <script setup lang="ts">
@@ -20,6 +21,7 @@ import NavigationBar from "@/components/Navigation/NavigationBar.vue";
 import FooterCard from "@/components/Cards/FooterCard.vue";
 import NotificactionComponent from "@/components/Extras/NotificactionComponent.vue";
 import MatchFound from "@/components/Cards/Items/MatchFound.vue";
+import OpenImageView from "@/components/Cards/Chat/OpenImageView.vue";
 
 import { useRoute } from "vue-router";
 

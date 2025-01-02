@@ -33,7 +33,9 @@ export const USER_MESSAGES = {
 	USER_LIST_SERVER_PUBLIC_GENERAL_ERROR: " Hubo un error al listar los servidores",
 	USER_MMR_PARAMS_ERROR: "Parámetros incorrectos",
 	USER_MMR_NOT_FOUND_STEAM: "No se encontró el jugador",
-	USER_MMR_GENERAL_ERROR:"Hubo un error general al obtener el MMR del Usuario"
+	USER_MMR_GENERAL_ERROR:"Hubo un error general al obtener el MMR del Usuario",
+	USER_FILES_UPLOAD_SUCCESSFUL: "Archivos subidos correctamente",
+	USER_FILES_GENERAL_ERROR: "Hubo un error al subir los archivos",
 };
 
 export const QUEUE_MESSAGES = {
