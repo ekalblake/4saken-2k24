@@ -6,6 +6,7 @@ declare interface IPlayer {
 	Rating: number;
 	RatingDuel: number;
 	GamesPlayed: number;
+	GamesPlayedDuel: number;
 	LastGame: string;
 	Wins: number;
 	personaname: string;

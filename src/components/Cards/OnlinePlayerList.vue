@@ -23,9 +23,14 @@
 			:key="i"
 		>
 			<template v-slot:prepend>
-				<v-avatar tile size="25" :style="online.getBackgroundColor()">
-					<img height="30" alt="Profile Pic" :src="online.getAvatarFull()" />
-				</v-avatar>
+				<v-tooltip location="right">
+					<template v-slot:activator="{ props }">
+						<v-avatar v-bind="props" tile size="25" :style="online.getBackgroundColor()">
+							<img height="30" alt="Profile Pic" :src="online.getAvatarFull()" />
+						</v-avatar>
+					</template>
+					<UserCard min-width="500" :user-card="online" />
+				</v-tooltip>
 			</template>
 			<template v-slot:default>
 				<v-card-text
@@ -61,6 +66,7 @@ import useSocket from "@/composables/useSocket";
 
 import { useI18n } from "vue-i18n";
 import useEmitter from "@/composables/useEmitter";
+import UserCard from "./Items/UserCard.vue";
 
 const { t } = useI18n();
 

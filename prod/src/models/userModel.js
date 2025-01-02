@@ -126,6 +126,7 @@ export const onlineUserList = async () => {
 			users_web.colorChat,
 			users_web.glowColor,
 			users_mmr.GamesPlayed,
+			duel_mmr.GamesPlayed as GamesPlayedDuel,
 		CASE
 			WHEN 
 				users_mmr.GamesPlayed < 8 THEN 0

@@ -124,9 +124,7 @@ const audio = reactive<any>({
 });
 
 const handleEmojiSelected = (selection: any) => {
-	if (!textAreaRef.value) return;
-	textAreaRef.value.innerHTML += selection.i;
-	inputTextHasContent.value = true;
+	messageField.value += selection.i;
 };
 
 const handlePaste = (event: any) => {

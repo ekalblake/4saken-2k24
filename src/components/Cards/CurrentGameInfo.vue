@@ -21,9 +21,14 @@
 						:key="i"
 					>
 						<span> {{ teamA.getPersonaName() }} </span>
-						<v-avatar :style="teamA.getBoxShadow()" size="25">
-							<v-img :src="teamA.getAvatarFull()" />
-						</v-avatar>
+						<v-tooltip location="left">
+							<template v-slot:activator="{ props }">
+								<v-avatar v-bind="props" :style="teamA.getBoxShadow()" size="25">
+									<v-img :src="teamA.getAvatarFull()" />
+								</v-avatar>
+							</template>
+							<UserCard min-width="300px" :user-card="teamA" />
+						</v-tooltip>
 					</div>
 				</v-card-text>
 			</v-col>
@@ -35,9 +40,14 @@
 						:key="i"
 					>
 						<span> {{ teamB.getPersonaName() }}</span>
-						<v-avatar :style="teamB.getBoxShadow()" size="25">
-							<v-img :src="teamB.getAvatarFull()" />
-						</v-avatar>
+						<v-tooltip location="left">
+							<template v-slot:activator="{ props }">
+								<v-avatar v-bind="props" :style="teamB.getBoxShadow()" size="25">
+									<v-img :src="teamB.getAvatarFull()" />
+								</v-avatar>
+							</template>
+							<UserCard min-width="300px" :user-card="teamB" />
+						</v-tooltip>
 					</div>
 				</v-card-text>
 			</v-col>
@@ -81,6 +91,7 @@ import QueueGamesItemModel from "@/models/Queues/QueueGamesItemModel";
 
 import { useUserStore } from "@/store/userStore";
 import { computed } from "vue";
+import UserCard from "./Items/UserCard.vue";
 
 const { t } = useI18n();
 

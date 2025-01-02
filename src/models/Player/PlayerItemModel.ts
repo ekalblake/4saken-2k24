@@ -8,6 +8,7 @@ export default class PlayerItemModel {
 	readonly Rating: number;
 	readonly RatingDuel: number;
 	readonly GamesPlayed: number;
+	readonly GamesPlayedDuel: number;
 	readonly LastGame: string;
 	readonly Wins: number;
 	readonly personaname: string;
@@ -28,6 +29,7 @@ export default class PlayerItemModel {
 		this.Rating = data.Rating;
 		this.RatingDuel = data.RatingDuel;
 		this.GamesPlayed = data.GamesPlayed;
+		this.GamesPlayedDuel = data.GamesPlayedDuel;
 		this.LastGame = data.LastGame;
 		this.Wins = data.Wins;
 		this.personaname = data.personaname;
@@ -107,7 +109,7 @@ export default class PlayerItemModel {
 	}
 
 	public getRatingDuel(): number | string {
-		if (this.getGamesPlayed() < 8) {
+		if (this.GamesPlayedDuel < 8) {
 			return "SIN CALIBRAR";
 		}
 		return Math.trunc(this.RatingDuel);
@@ -116,9 +118,15 @@ export default class PlayerItemModel {
 	public getGamesPlayed(): number {
 		return this.GamesPlayed;
 	}
+
+	public getGamesPlayedDuel(): number {
+		return this.GamesPlayedDuel;
+	}
+
 	public getLastGame(): string {
 		return "Fecha";
 	}
+
 	public getWins(): number {
 		return this.Wins;
 	}

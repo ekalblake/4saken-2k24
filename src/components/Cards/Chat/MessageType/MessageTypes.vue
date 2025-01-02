@@ -2,7 +2,7 @@
 	<v-slide-y-reverse-transition v-if="message">
 		<v-list-item>
 			<template v-slot:prepend>
-				<v-tooltip :text="helpers.unixToDate(message.getCreatedAt())">
+				<v-tooltip location="left" :text="helpers.unixToDate(message.getCreatedAt())">
 					<template v-slot:activator="{ props }">
 						<v-avatar
 							v-bind="props"
@@ -14,6 +14,7 @@
 							<v-img :src="message.getAvatarFull()" />
 						</v-avatar>
 					</template>
+					<UserCard min-width="400px" :user-card="message" />
 				</v-tooltip>
 			</template>
 			<template v-slot:default>
@@ -45,6 +46,7 @@ import ChatItemModel from "@/models/Chat/ChatItemModel";
 import { useUserStore } from "@/store/userStore";
 import PlayerItemModel from "@/models/Player/PlayerItemModel";
 import helpers from "@/utils/Dateformat";
+import UserCard from "@/components/Cards/Items/UserCard.vue";
 
 const props = defineProps<{
 	message: ChatItemModel | null;
