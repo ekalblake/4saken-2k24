@@ -1,5 +1,5 @@
 <template>
-	<v-card class="bgc_cards text-white overflow-auto" max-height="555" width="750" height="auto">
+	<v-card class="bgc_cards text-white overflow-auto" max-height="555" height="auto">
 		<div v-if="isLoading" class="progressbar_center">
 			<v-progress-circular indeterminate color="primary" />
 		</div>
@@ -13,7 +13,7 @@
 			</div>
 		</template>
 	</v-card>
-	<v-card class="bgc_cards text-white overflow-auto my-3" max-height="250" width="750">
+	<v-card class="bgc_cards text-white overflow-auto my-3" max-height="250">
 		<v-card-actions>
 			<InputChat :game-type="gameType" />
 		</v-card-actions>

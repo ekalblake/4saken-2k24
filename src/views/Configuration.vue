@@ -86,7 +86,7 @@
 	</v-container>
 </template>
 <script lang="ts" setup>
-import { Ref, ref, computed, watch } from "vue";
+import { ref, computed, watch } from "vue";
 
 import OnlineInfo from "@/components/Cards/OnlineInformation.vue";
 
@@ -104,8 +104,8 @@ const emitter = useEmitter();
 
 const userInfo = computed<PlayersItemModel | null>(() => userStore.userInfo as PlayersItemModel);
 
-const menu1: Ref<boolean> = ref<boolean>(false);
-const menu2: Ref<boolean> = ref<boolean>(false);
+const menu1 = ref<boolean>(false);
+const menu2 = ref<boolean>(false);
 
 const colorChat = ref(userInfo.value?.getColorChat());
 

@@ -1,32 +1,19 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
 
 import App from "./App.vue";
-
-// Vuetify
-import "vuetify/styles";
-import { createVuetify } from "vuetify";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
 
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 
 import i18n from "./plugins/i18n";
+import vuetify from "./plugins/vuetify";
+import pinia from "./plugins/pinia";
 
 import router from "./routes/index";
 
 import mitt from "mitt";
 
 const emitter = mitt();
-
-const vuetify = createVuetify({
-	components,
-	directives,
-	ssr: true,
-});
-
-const pinia = createPinia();
 
 const app = createApp(App);
 

@@ -1,6 +1,6 @@
 <template>
 	<v-container class="d-flex justify-center align-center">
-		<v-img max-height="100%" max-width="750px" src="@/assets/comingsoon.png"> </v-img>
+		<!-- <v-img max-height="100%" max-width="750px" src="@/assets/comingsoon.png"> </v-img> -->
 		<!--<h1 class="partner_title pa-5" >
       PARTNERS
     </h1>

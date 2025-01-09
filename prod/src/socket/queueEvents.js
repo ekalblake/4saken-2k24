@@ -124,10 +124,9 @@ export const queueEvents = (socket, io, userInfo) => {
 
 		if (!player) {
 			queueArray.push(jugador);
-
-			io.to(room).emit("queue:player-joined", jugador);
 		}
 
+		io.to(room).emit("queue:player-joined", jugador);
 		/* 
 
 		const potentialMatches = findPotentialMatches(player);
@@ -221,7 +220,7 @@ export const queueEvents = (socket, io, userInfo) => {
 
 		io.emit("queue:player-dropped", userInfo.UserID);
  */
-		await dropQueue(userInfo.UserID);
+		/* await dropQueue(userInfo.UserID); */
 	});
 };
 
